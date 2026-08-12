@@ -1,3 +1,0 @@
-ahmed@mughram</tspan> => total_line_plain_len=61 | repr='ahmed@mughram -———————————————————————————————————————————-—-'
-- Contact</tspan> => total_line_plain_len=60 | repr='- Contact -——————————————————————————————————————————————-—-'
-- GitHub Stats</tspan> => total_line_plain_len=60 | repr='- GitHub Stats -—————————————————————————————————————————-—-'
