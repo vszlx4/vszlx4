@@ -12,46 +12,15 @@
 .cc {fill: #616e7f;}
 .addColor {fill: #3fb950;}
 .delColor {fill: #f85149;}
+.track {fill: #21262d;}
+.bar {fill: #58a6ff;}
+.panelTitle {fill: #c9d1d9; font-size: 14px;}
+.panelLabel {fill: #a5d6ff; font-size: 13px;}
+.panelValue {fill: #616e7f; font-size: 13px;}
 text, tspan {white-space: pre;}
 </style>
 <rect width="985px" height="530px" fill="#161b22" rx="15"/>
-<text font-size="11px" fill="#c9d1d9">
-    <tspan x="20" y="28">                 :=**###%#%**-:</tspan>
-    <tspan x="20" y="42">            .=#%**+****%*++##**%%#:</tspan>
-    <tspan x="20" y="56">          =%#+**%++*#**+++*#+=%=#+#*%:</tspan>
-    <tspan x="20" y="70">       .#%=%+*#*****+*#=+++*#+%*+**#*#%:</tspan>
-    <tspan x="20" y="84">      =%*#=#+*+*#*#*-=*=+=*=*=+-**+#**##%:</tspan>
-    <tspan x="20" y="98">     +%#+*+*#=*-*==+=+=**=*===*=+=*+++**%@-</tspan>
-    <tspan x="20" y="112">    +%%+*=..   ..==+**==*=+==+:.    ..=+%#%.</tspan>
-    <tspan x="20" y="126">   :%**+.                              :%=#%.</tspan>
-    <tspan x="20" y="140">  .%##=-                                +**%:</tspan>
-    <tspan x="20" y="154">  :%**%:                                -++%*</tspan>
-    <tspan x="20" y="168">  :%*%+:                                -***#</tspan>
-    <tspan x="20" y="182">  -%*+*                                 =*=%#</tspan>
-    <tspan x="20" y="196">  :%#+.  .-==:                  .-==-    **%*</tspan>
-    <tspan x="20" y="210">  :@%-++::=**%%#%=          .*#%%#%%*::*=.*%*</tspan>
-    <tspan x="20" y="224">   *@*.:*=:  ::=***-       +**=::.  .-+-:*=%-</tspan>
-    <tspan x="20" y="238"> #-#%        :**=. ==     +: .+*+        .%%===</tspan>
-    <tspan x="20" y="252">-+**=   .*%%@@@@@*  *: . -+ :%@@@@@%%=.   +%*-*</tspan>
-    <tspan x="20" y="266">.# =*:  -:  =@@==-  =@@@@@:  +-*@@:  ::   +@::=</tspan>
-    <tspan x="20" y="280"> =:=%=   .:----:+:  *:   ==  ==:----:    .%*:=:</tspan>
-    <tspan x="20" y="294"> :=+*#.      .=.   +-     +:   .-:      :##--*</tspan>
-    <tspan x="20" y="308">  *.-**=.        :#:       =*.        .+=:+-==</tspan>
-    <tspan x="20" y="322">  :* *: .*%+==*%=            .*%*==*%+. .*-.*</tspan>
-    <tspan x="20" y="336">   :***.            -.   .-.            :#**.</tspan>
-    <tspan x="20" y="350">     :+=.          :-==+=-=-           .=%</tspan>
-    <tspan x="20" y="364">     .*==:.    .-*%%*#%+%#%@@@*-.    .-.=*</tspan>
-    <tspan x="20" y="378">      #=::::  ##%*#***+.:*+=*+%%%: -.::-*:</tspan>
-    <tspan x="20" y="392">      :*::=::-*:.+%#**++==++*#- -*:-.::+*</tspan>
-    <tspan x="20" y="406">       =*:=::            ..       :.---%:</tspan>
-    <tspan x="20" y="420">        =*-==--        .         .::-**.</tspan>
-    <tspan x="20" y="434">         -%*::=:               .::-**-=</tspan>
-    <tspan x="20" y="448">         :+ +#:=+:  . -.=.   .:.:-*: --</tspan>
-    <tspan x="20" y="462">         :*   -**::=.:=.-:.:=.+=*:   =-</tspan>
-    <tspan x="20" y="476">         :*     :**+:+.==-==-**:     =-</tspan>
-    <tspan x="20" y="490">         :=        .-=====-:         :=</tspan>
-    <tspan x="20" y="504">         -:                          .-</tspan>
-</text>
+<g id="left_panel" font-size="13px"></g>
 <text x="390" y="30" fill="#c9d1d9">
 <tspan x="390" y="30">ahmed@mughram</tspan> -———————————————————————————————————————————-—-
 <tspan x="390" y="50" class="cc">. </tspan><tspan class="key">OS</tspan>:<tspan class="cc"> ......................... </tspan><tspan class="value">Windows 11, macOS, ArchLinux</tspan>

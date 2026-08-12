@@ -15,7 +15,7 @@ import hashlib
 # Issues and pull requests permissions not needed at the moment, but may be used in the future
 HEADERS = {'authorization': 'token '+ os.environ['ACCESS_TOKEN']}
 USER_NAME = os.environ['USER_NAME']
-QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0, 'recursive_loc': 0, 'graph_commits': 0, 'loc_query': 0}
+QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0, 'recursive_loc': 0, 'graph_commits': 0, 'loc_query': 0, 'graph_languages': 0}
 
 
 def account_uptime(created_at):
@@ -107,6 +107,76 @@ def graph_repos_stars(count_type, owner_affiliation, cursor=None, add_loc=0, del
             return request.json()['data']['user']['repositories']['totalCount']
         elif count_type == 'stars':
             return stars_counter(request.json()['data']['user']['repositories']['edges'])
+
+
+def graph_languages(owner_affiliation, cursor=None, edges=[]):
+    """
+    Uses GitHub's GraphQL v4 API to fetch each repository's language breakdown (bytes per language)
+    """
+    query_count('graph_languages')
+    query = '''
+    query ($owner_affiliation: [RepositoryAffiliation], $login: String!, $cursor: String) {
+        user(login: $login) {
+            repositories(first: 60, after: $cursor, ownerAffiliations: $owner_affiliation) {
+                edges {
+                    node {
+                        ... on Repository {
+                            languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
+                                edges {
+                                    size
+                                    node {
+                                        name
+                                        color
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                pageInfo {
+                    endCursor
+                    hasNextPage
+                }
+            }
+        }
+    }'''
+    variables = {'owner_affiliation': owner_affiliation, 'login': USER_NAME, 'cursor': cursor}
+    request = simple_request(graph_languages.__name__, query, variables)
+    repositories = request.json()['data']['user']['repositories']
+    edges = edges + repositories['edges']
+    if repositories['pageInfo']['hasNextPage']:
+        return graph_languages(owner_affiliation, repositories['pageInfo']['endCursor'], edges)
+    return edges
+
+
+def aggregate_languages(edges, top_n=6):
+    """
+    Sums language byte totals across every repository and returns the top_n by size,
+    each as (name, color, byte_size, fraction_of_all_bytes_used)
+    """
+    totals = {}
+    colors = {}
+    for edge in edges:
+        for lang_edge in edge['node']['languages']['edges']:
+            name = lang_edge['node']['name']
+            totals[name] = totals.get(name, 0) + lang_edge['size']
+            colors.setdefault(name, lang_edge['node']['color'] or '#858585')
+    grand_total = sum(totals.values()) or 1
+    ranked = sorted(totals.items(), key=lambda item: item[1], reverse=True)[:top_n]
+    return [(name, colors[name], size, size / grand_total) for name, size in ranked]
+
+
+def top_repos_by_commits(edges, cache_data, top_n=6):
+    """
+    Ranks repositories by my commit count using the LOC cache cache_builder() just refreshed
+    """
+    ranked = []
+    for index, edge in enumerate(edges):
+        my_commits = int(cache_data[index].split()[2])
+        if my_commits > 0:
+            ranked.append((edge['node']['nameWithOwner'], my_commits))
+    ranked.sort(key=lambda item: item[1], reverse=True)
+    return ranked[:top_n]
 
 
 def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, deletion_total=0, my_commits=0, cursor=None):
@@ -261,7 +331,7 @@ def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0):
         loc = line.split()
         loc_add += int(loc[3])
         loc_del += int(loc[4])
-    return [loc_add, loc_del, loc_add - loc_del, cached]
+    return [loc_add, loc_del, loc_add - loc_del, cached, edges, data]
 
 
 def flush_cache(edges, filename, comment_size):
@@ -300,7 +370,78 @@ def stars_counter(data):
     return total_stars
 
 
-def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data):
+def build_left_panel(root, repos, langs):
+    """
+    Renders the top-repositories and top-languages bar charts into the <g id="left_panel"> placeholder,
+    fully replacing whatever it held from the previous run.
+    """
+    container = root.find(".//*[@id='left_panel']")
+    if container is None:
+        return
+    for child in list(container):
+        container.remove(child)
+
+    PANEL_X = 20
+    PANEL_W = 355
+    ROW_H = 34
+    BAR_H = 6
+    BAR_GAP = 10  # distance from a row's text baseline down to the top of its bar
+    NAME_LIMIT = 34
+
+    def add_text(x, y, text, cls, anchor=None):
+        el = etree.SubElement(container, 'text')
+        el.set('x', str(x))
+        el.set('y', str(y))
+        el.set('class', cls)
+        if anchor:
+            el.set('text-anchor', anchor)
+        el.text = text
+
+    def add_bar(y, fraction, fill_class=None, fill=None):
+        rect_y = y + BAR_GAP
+        etree.SubElement(container, 'rect', {
+            'x': str(PANEL_X), 'y': str(rect_y), 'width': str(PANEL_W), 'height': str(BAR_H),
+            'rx': '3', 'class': 'track',
+        })
+        width = max(2, round(PANEL_W * max(0.0, min(1.0, fraction))))
+        attrs = {'x': str(PANEL_X), 'y': str(rect_y), 'width': str(width), 'height': str(BAR_H), 'rx': '3'}
+        if fill_class:
+            attrs['class'] = fill_class
+        if fill:
+            attrs['fill'] = fill
+        etree.SubElement(container, 'rect', attrs)
+
+    def truncate(name):
+        return name if len(name) <= NAME_LIMIT else name[:NAME_LIMIT - 1] + '…'
+
+    y = 24
+    add_text(PANEL_X, y, '- Top Repositories', 'panelTitle')
+    if repos:
+        max_commits = repos[0][1]
+        for name, commits in repos:
+            y += ROW_H
+            add_text(PANEL_X, y, truncate(name), 'panelLabel')
+            add_text(PANEL_X + PANEL_W, y, '{:,}'.format(commits), 'panelValue', anchor='end')
+            add_bar(y, commits / max_commits if max_commits else 0, fill_class='bar')
+    else:
+        y += ROW_H
+        add_text(PANEL_X, y, 'No repositories yet', 'panelValue')
+
+    y += ROW_H + 20
+    add_text(PANEL_X, y, '- Languages', 'panelTitle')
+    if langs:
+        max_fraction = langs[0][3]
+        for name, color, size, fraction in langs:
+            y += ROW_H
+            add_text(PANEL_X, y, truncate(name), 'panelLabel')
+            add_text(PANEL_X + PANEL_W, y, '{:.1f}%'.format(fraction * 100), 'panelValue', anchor='end')
+            add_bar(y, fraction / max_fraction if max_fraction else 0, fill=color)
+    else:
+        y += ROW_H
+        add_text(PANEL_X, y, 'No language data yet', 'panelValue')
+
+
+def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data, top_repos, top_langs):
     """
     Parse SVG files and update elements with my uptime, commits, stars, repositories, and lines written
     Every row's rightmost character lands on the same column (ROW_WIDTH) as the system-info block above it.
@@ -332,9 +473,11 @@ def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, cont
     add_str = '{:,}'.format(loc_data[0]) if isinstance(loc_data[0], int) else str(loc_data[0])
     del_str = '{:,}'.format(loc_data[1]) if isinstance(loc_data[1], int) else str(loc_data[1])
     gap_len = ROW_WIDTH - left_width - len(' ( ') - len(add_str) - len('++') - len(', ') - len(del_str) - len('--') - len(' )')
-    find_and_replace(root, 'loc_del_dots', ' ' * max(1, gap_len))
     justify_format(root, 'loc_add', loc_data[0])
     justify_format(root, 'loc_del', loc_data[1])
+    find_and_replace(root, 'loc_del_dots', ' ' * max(1, gap_len))
+
+    build_left_panel(root, top_repos, top_langs)
     tree.write(filename, encoding='utf-8', xml_declaration=True)
 
 
@@ -451,21 +594,25 @@ if __name__ == '__main__':
     uptime_data, uptime_time = perf_counter(account_uptime, acc_date)
     formatter('uptime calculation', uptime_time)
     total_loc, loc_time = perf_counter(loc_query, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'], 7)
-    formatter('LOC (cached)', loc_time) if total_loc[-1] else formatter('LOC (no cache)', loc_time)
+    formatter('LOC (cached)', loc_time) if total_loc[3] else formatter('LOC (no cache)', loc_time)
+    loc_edges, loc_cache_data = total_loc[4], total_loc[5]
     commit_data, commit_time = perf_counter(commit_counter, 7)
     star_data, star_time = perf_counter(graph_repos_stars, 'stars', ['OWNER'])
     repo_data, repo_time = perf_counter(graph_repos_stars, 'repos', ['OWNER'])
     contrib_data, contrib_time = perf_counter(graph_repos_stars, 'repos', ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
     follower_data, follower_time = perf_counter(follower_getter, USER_NAME)
+    top_repo_data, top_repo_time = perf_counter(top_repos_by_commits, loc_edges, loc_cache_data)
+    lang_edges, lang_time = perf_counter(graph_languages, ['OWNER'])
+    top_lang_data = aggregate_languages(lang_edges)
 
-    for index in range(len(total_loc)-1): total_loc[index] = '{:,}'.format(total_loc[index]) # format added, deleted, and total LOC
+    for index in range(3): total_loc[index] = '{:,}'.format(total_loc[index]) # format added, deleted, and total LOC
 
-    svg_overwrite('dark_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:-1])
-    svg_overwrite('light_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:-1])
+    svg_overwrite('dark_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:3], top_repo_data, top_lang_data)
+    svg_overwrite('light_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:3], top_repo_data, top_lang_data)
 
     # move cursor to override 'Calculation times:' with 'Total function time:' and the total function time, then move cursor back
     print('\033[F\033[F\033[F\033[F\033[F\033[F\033[F\033[F',
-        '{:<21}'.format('Total function time:'), '{:>11}'.format('%.4f' % (user_time + uptime_time + loc_time + commit_time + star_time + repo_time + contrib_time)),
+        '{:<21}'.format('Total function time:'), '{:>11}'.format('%.4f' % (user_time + uptime_time + loc_time + commit_time + star_time + repo_time + contrib_time + top_repo_time + lang_time)),
         ' s \033[E\033[E\033[E\033[E\033[E\033[E\033[E\033[E', sep='')
 
     print('Total GitHub GraphQL API calls:', '{:>3}'.format(sum(QUERY_COUNT.values())))
