@@ -303,15 +303,23 @@ def stars_counter(data):
 def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data):
     """
     Parse SVG files and update elements with my uptime, commits, stars, repositories, and lines written
+    Every row's rightmost character lands on the same column (ROW_WIDTH) as the system-info block above it,
+    so star_data/follower_data are padded dynamically to close out whatever repo_data/commit_data left behind.
     """
     tree = etree.parse(filename)
     root = tree.getroot()
+    ROW_WIDTH = 60
+    REPO_LEN = 8
+    COMMIT_LEN = 9
     justify_format(root, 'uptime_data', uptime_data, 51)
-    justify_format(root, 'commit_data', commit_data, 9)
-    justify_format(root, 'star_data', star_data)
-    justify_format(root, 'repo_data', repo_data, 8)
+    justify_format(root, 'repo_data', repo_data, REPO_LEN)
     justify_format(root, 'contrib_data', contrib_data)
-    justify_format(root, 'follower_data', follower_data)
+    contrib_str = '{:,}'.format(contrib_data) if isinstance(contrib_data, int) else str(contrib_data)
+    star_len = ROW_WIDTH - len('. Repos:') - REPO_LEN - len(' {Contributed: ') - len(contrib_str) - len('} | Stars:')
+    justify_format(root, 'star_data', star_data, star_len)
+    justify_format(root, 'commit_data', commit_data, COMMIT_LEN)
+    follower_len = ROW_WIDTH - len('. Commits:') - COMMIT_LEN - len(' | Followers:')
+    justify_format(root, 'follower_data', follower_data, follower_len)
     justify_format(root, 'loc_data', loc_data[2], 9)
     justify_format(root, 'loc_add', loc_data[0])
     justify_format(root, 'loc_del', loc_data[1])
@@ -331,7 +339,7 @@ def justify_format(root, element_id, new_text, length=0):
         dot_map = {0: '', 1: ' ', 2: '. '}
         dot_string = dot_map[just_len]
     else:
-        dot_string = ' ' + ('.' * just_len) + ' '
+        dot_string = ' ' + ('.' * (just_len - 2)) + ' '
     find_and_replace(root, f"{element_id}_dots", dot_string)
 
 
