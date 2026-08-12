@@ -323,7 +323,16 @@ def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, cont
     justify_format(root, 'commit_data', commit_data, commit_len)
     follower_len = right_width - len('Followers:')
     justify_format(root, 'follower_data', follower_data, follower_len)
-    justify_format(root, 'loc_data', loc_data[2], 9)
+
+    # Lines of Code: '(' lands on the same column as the '|' above; ')' lands on the card's rightmost
+    # column like everything else. The gap between ++ and -- absorbs whatever width is left over.
+    loc_prefix_len = len('. Lines of Code on GitHub:')
+    loc_len = left_width - loc_prefix_len
+    justify_format(root, 'loc_data', loc_data[2], loc_len)
+    add_str = '{:,}'.format(loc_data[0]) if isinstance(loc_data[0], int) else str(loc_data[0])
+    del_str = '{:,}'.format(loc_data[1]) if isinstance(loc_data[1], int) else str(loc_data[1])
+    gap_len = ROW_WIDTH - left_width - len(' ( ') - len(add_str) - len('++') - len(', ') - len(del_str) - len('--') - len(' )')
+    find_and_replace(root, 'loc_del_dots', ' ' * max(1, gap_len))
     justify_format(root, 'loc_add', loc_data[0])
     justify_format(root, 'loc_del', loc_data[1])
     tree.write(filename, encoding='utf-8', xml_declaration=True)
