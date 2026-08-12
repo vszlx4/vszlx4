@@ -8,6 +8,7 @@ import os
 from lxml import etree
 import time
 import hashlib
+import math
 
 # Fine-grained personal access token with All Repositories access:
 # Account permissions: read:Followers, read:Starring, read:Watching
@@ -126,6 +127,7 @@ def graph_languages(owner_affiliation, cursor=None, edges=[]):
                                     size
                                     node {
                                         name
+                                        color
                                     }
                                 }
                             }
@@ -151,16 +153,18 @@ def graph_languages(owner_affiliation, cursor=None, edges=[]):
 def aggregate_languages(edges, top_n=6):
     """
     Sums language byte totals across every repository and returns the top_n by size,
-    each as (name, byte_size, fraction_of_all_bytes_used)
+    each as (name, color, byte_size, fraction_of_all_bytes_used)
     """
     totals = {}
+    colors = {}
     for edge in edges:
         for lang_edge in edge['node']['languages']['edges']:
             name = lang_edge['node']['name']
             totals[name] = totals.get(name, 0) + lang_edge['size']
+            colors.setdefault(name, lang_edge['node']['color'] or '#858585')
     grand_total = sum(totals.values()) or 1
     ranked = sorted(totals.items(), key=lambda item: item[1], reverse=True)[:top_n]
-    return [(name, size, size / grand_total) for name, size in ranked]
+    return [(name, colors[name], size, size / grand_total) for name, size in ranked]
 
 
 def top_repos_by_commits(edges, cache_data, top_n=6):
@@ -369,11 +373,9 @@ def stars_counter(data):
 
 def build_left_panel(root, repos, langs):
     """
-    Renders the top-repositories and top-languages sections into the <g id="left_panel"> placeholder,
-    fully replacing whatever it held from the previous run. Every row is built the same way the right
-    column is: a ". " cc-prefix, a key, a colon, a leader between the colon and the value, and the value
-    itself -- the "progress bar" is just that leader with some of its dots swapped for dashes, proportional
-    to the row's share of the top value, so the whole card stays one plain-text monospace grid.
+    Renders the top-repositories bar list and the top-languages donut+legend into the <g id="left_panel">
+    placeholder, fully replacing whatever it held from the previous run. Section headers sit on the same
+    row as "ahmed@mughram" would repeat on (grid-aligned, 34px cadence) so the whole card reads as one grid.
     """
     container = root.find(".//*[@id='left_panel']")
     if container is None:
@@ -382,74 +384,89 @@ def build_left_panel(root, repos, langs):
         container.remove(child)
 
     PANEL_X = 20
+    PANEL_W = 355
     ROW_H = 34
-    NAME_LIMIT = 20
-    ROW_WIDTH = 36  # target character width for every row in this panel (355px / ~9.6px per char at 16px)
+    BAR_H = 6
+    BAR_GAP = 10  # distance from a row's text baseline down to the top of its bar
+    NAME_LIMIT = 34
 
-    def add_row(y, key_text, value_text, fraction):
-        fixed = len('. ') + len(key_text) + len(':') + len(value_text)
-        bar_w = max(1, ROW_WIDTH - fixed - 2)
-        filled = round(bar_w * max(0.0, min(1.0, fraction)))
-        leader = ' ' + ('-' * filled) + ('.' * (bar_w - filled)) + ' '
-        row = etree.SubElement(container, 'text')
-        row.set('x', str(PANEL_X))
-        row.set('y', str(y))
-        prefix = etree.SubElement(row, 'tspan')
-        prefix.set('class', 'cc')
-        prefix.text = '. '
-        key = etree.SubElement(row, 'tspan')
-        key.set('class', 'key')
-        key.text = key_text
-        key.tail = ':'
-        dots = etree.SubElement(row, 'tspan')
-        dots.set('class', 'cc')
-        dots.text = leader
-        value = etree.SubElement(row, 'tspan')
-        value.set('class', 'value')
-        value.text = value_text
-
-    def add_header(y, title):
-        n = max(1, ROW_WIDTH - len(title) - 5)
+    def add_text(x, y, text, cls, anchor=None):
         el = etree.SubElement(container, 'text')
-        el.set('x', str(PANEL_X))
+        el.set('x', str(x))
         el.set('y', str(y))
-        el.text = title + ' -' + ('—' * n) + '-—-'
-
-    def add_note(y, text):
-        el = etree.SubElement(container, 'text')
-        el.set('x', str(PANEL_X))
-        el.set('y', str(y))
-        el.set('class', 'cc')
+        el.set('class', cls)
+        if anchor:
+            el.set('text-anchor', anchor)
         el.text = text
 
-    def truncate(name):
-        return name if len(name) <= NAME_LIMIT else name[:NAME_LIMIT - 1] + '…'
+    def add_bar(x, y, w, fraction, fill_class=None, fill=None):
+        etree.SubElement(container, 'rect', {
+            'x': str(x), 'y': str(y), 'width': str(w), 'height': str(BAR_H), 'rx': '3', 'class': 'track',
+        })
+        width = max(2, round(w * max(0.0, min(1.0, fraction))))
+        attrs = {'x': str(x), 'y': str(y), 'width': str(width), 'height': str(BAR_H), 'rx': '3'}
+        if fill_class:
+            attrs['class'] = fill_class
+        if fill:
+            attrs['fill'] = fill
+        etree.SubElement(container, 'rect', attrs)
+
+    def truncate(name, limit=NAME_LIMIT):
+        return name if len(name) <= limit else name[:limit - 1] + '…'
 
     def strip_owner(name):
         prefix = USER_NAME + '/'
         return name[len(prefix):] if name.startswith(prefix) else name
 
-    y = 24
-    add_header(y, '- Top Repositories')
+    y = 30
+    add_text(PANEL_X, y, '- Top Repositories', 'panelTitle')
     if repos:
         max_commits = repos[0][1]
         for name, commits in repos:
             y += ROW_H
-            add_row(y, truncate(strip_owner(name)), '{:,}'.format(commits), commits / max_commits if max_commits else 0)
+            add_text(PANEL_X, y, truncate(strip_owner(name)), 'key')
+            add_text(PANEL_X + PANEL_W, y, '{:,}'.format(commits), 'value', anchor='end')
+            add_bar(PANEL_X, y + BAR_GAP, PANEL_W, commits / max_commits if max_commits else 0, fill_class='bar')
     else:
         y += ROW_H
-        add_note(y, 'No repositories yet')
+        add_text(PANEL_X, y, 'No repositories yet', 'panelValue')
 
     y += ROW_H + 20
-    add_header(y, '- Languages')
+    lang_title_y = y
+    add_text(PANEL_X, lang_title_y, '- Languages', 'panelTitle')
+
     if langs:
-        max_fraction = langs[0][2]
-        for name, size, fraction in langs:
-            y += ROW_H
-            add_row(y, truncate(name), '{:.1f}%'.format(fraction * 100), fraction / max_fraction if max_fraction else 0)
+        LEGEND_RIGHT = 190
+        SWATCH = 8
+        legend_top = lang_title_y + ROW_H
+        legend_bottom = legend_top + (len(langs) - 1) * ROW_H
+        for i, (name, color, size, fraction) in enumerate(langs):
+            row_y = legend_top + i * ROW_H
+            etree.SubElement(container, 'rect', {
+                'x': str(PANEL_X), 'y': str(row_y - SWATCH), 'width': str(SWATCH), 'height': str(SWATCH),
+                'rx': '2', 'fill': color,
+            })
+            add_text(PANEL_X + SWATCH + 8, row_y, truncate(name, 18), 'panelLabel')
+            add_text(LEGEND_RIGHT, row_y, '{:.1f}%'.format(fraction * 100), 'panelValue', anchor='end')
+
+        cx = 285
+        cy = round((legend_top + legend_bottom) / 2) - 6
+        r = 68
+        stroke_w = 26
+        circumference = 2 * math.pi * r
+        offset = 0.0
+        for name, color, size, fraction in langs:
+            arc_len = fraction * circumference
+            etree.SubElement(container, 'circle', {
+                'cx': str(cx), 'cy': str(cy), 'r': str(r), 'fill': 'none',
+                'stroke': color, 'stroke-width': str(stroke_w),
+                'stroke-dasharray': '{:.2f} {:.2f}'.format(arc_len, circumference - arc_len),
+                'stroke-dashoffset': '{:.2f}'.format(-offset),
+                'transform': 'rotate(-90 {} {})'.format(cx, cy),
+            })
+            offset += arc_len
     else:
-        y += ROW_H
-        add_note(y, 'No language data yet')
+        add_text(PANEL_X, lang_title_y + ROW_H, 'No language data yet', 'panelValue')
 
 
 def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data, top_repos, top_langs):
@@ -477,16 +494,21 @@ def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, cont
     justify_format(root, 'follower_data', follower_data, follower_len)
 
     # Lines of Code: '(' lands on the same column as the '|' above; ')' lands on the card's rightmost
-    # column like everything else. The gap between ++ and -- absorbs whatever width is left over.
+    # column like everything else. "add++, del--" stays put as one block with a plain ', ' between the
+    # two numbers, and whatever width is left over is split evenly as padding against each parenthesis.
     loc_prefix_len = len('. Lines of Code on GitHub:')
     loc_len = left_width - loc_prefix_len
     justify_format(root, 'loc_data', loc_data[2], loc_len)
     add_str = '{:,}'.format(loc_data[0]) if isinstance(loc_data[0], int) else str(loc_data[0])
     del_str = '{:,}'.format(loc_data[1]) if isinstance(loc_data[1], int) else str(loc_data[1])
-    gap_len = ROW_WIDTH - left_width - len(' ( ') - len(add_str) - len('++') - len(', ') - len(del_str) - len('--') - len(' )')
+    fixed_len = len(' (') + len(add_str) + len('++') + len(', ') + len(del_str) + len('--') + len(')')
+    total_pad = max(0, ROW_WIDTH - left_width - fixed_len)
+    pad_l = total_pad // 2
+    pad_r = total_pad - pad_l
+    find_and_replace(root, 'loc_pad_open', ' ' * pad_l)
+    find_and_replace(root, 'loc_pad_close', ' ' * pad_r)
     justify_format(root, 'loc_add', loc_data[0])
     justify_format(root, 'loc_del', loc_data[1])
-    find_and_replace(root, 'loc_del_dots', ' ' * max(1, gap_len))
 
     build_left_panel(root, top_repos, top_langs)
     tree.write(filename, encoding='utf-8', xml_declaration=True)
