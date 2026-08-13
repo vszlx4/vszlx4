@@ -26,10 +26,10 @@ text, tspan {white-space: pre;}
 <tspan x="390" y="30">ahmed@mughram</tspan> -———————————————————————————————————————————-—-
 <tspan x="390" y="50" class="cc">. </tspan><tspan class="key">OS</tspan>:<tspan class="cc"> ......................... </tspan><tspan class="value">Windows 11, macOS, ArchLinux</tspan>
 <tspan x="390" y="70" class="cc">. </tspan><tspan class="key">Uptime</tspan>:<tspan class="cc" id="uptime_data_dots"> ....................... </tspan><tspan class="value" id="uptime_data">4 years, 9 months, 24 days</tspan>
-<tspan x="390" y="90" class="cc">. </tspan><tspan class="key">Host</tspan>:<tspan class="cc"> ........................................... </tspan><tspan class="value">DSShield</tspan>
-<tspan x="390" y="110" class="cc">. </tspan><tspan class="key">Kernel</tspan>:<tspan class="cc"> ............................. </tspan><tspan class="value">System Administrator</tspan>
-<tspan x="390" y="130" class="cc">. </tspan><tspan class="key">IDE</tspan>:<tspan class="cc"> .................. </tspan><tspan class="value">VSCode 1.132.1, PyCharm 2026.2.1.0</tspan>
-<tspan x="390" y="150" class="cc">. </tspan><tspan class="key">Location</tspan>:<tspan class="cc"> ................................... </tspan><tspan class="value">Saudi Arabia</tspan>
+<tspan x="390" y="90" class="cc">. </tspan><tspan class="key">Company</tspan>:<tspan class="cc"> ........................................ </tspan><tspan class="value">DSShield</tspan>
+<tspan x="390" y="110" class="cc">. </tspan><tspan class="key">Title</tspan>:<tspan class="cc"> .............................. </tspan><tspan class="value">System Administrator</tspan>
+<tspan x="390" y="130" class="cc">. </tspan><tspan class="key">Location</tspan>:<tspan class="cc"> ................................... </tspan><tspan class="value">Saudi Arabia</tspan>
+<tspan x="390" y="150" class="cc">. </tspan><tspan class="key">IDE</tspan>:<tspan class="cc"> .................. </tspan><tspan class="value">VSCode 1.132.1, PyCharm 2026.2.1.0</tspan>
 <tspan x="390" y="170" class="cc">. </tspan>
 <tspan x="390" y="190" class="cc">. </tspan><tspan class="key">Languages</tspan>.<tspan class="key">Programming</tspan>:<tspan class="cc"> ....... </tspan><tspan class="value">Python, TypeScript, uPy, JS</tspan>
 <tspan x="390" y="210" class="cc">. </tspan><tspan class="key">Languages</tspan>.<tspan class="key">Computer</tspan>:<tspan class="cc"> ............ </tspan><tspan class="value">React, Django, Express.js</tspan>
