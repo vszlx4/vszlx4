@@ -44,6 +44,18 @@ def format_plural(unit):
     return 's' if unit != 1 else ''
 
 
+def relative_time(iso_date):
+    """
+    Returns a single-unit relative time string for a timestamp, e.g. '10 days ago', '1 month ago', '2 years ago'
+    """
+    then = datetime.datetime.strptime(iso_date, '%Y-%m-%dT%H:%M:%SZ')
+    diff = relativedelta.relativedelta(datetime.datetime.today(), then)
+    for value, unit in ((diff.years, 'year'), (diff.months, 'month'), (diff.days, 'day')):
+        if value > 0:
+            return '{} {}{} ago'.format(value, unit, format_plural(value))
+    return 'today'
+
+
 def simple_request(func_name, query, variables):
     """
     Returns a request, or raises an Exception if the response does not succeed.
@@ -167,16 +179,17 @@ def aggregate_languages(edges, top_n=6):
     return [(name, colors[name], size, size / grand_total) for name, size in ranked]
 
 
-def top_repos_by_commits(edges, cache_data, top_n=6):
+def latest_repos(edges, cache_data, top_n=6):
     """
-    Ranks repositories by my commit count using the LOC cache cache_builder() just refreshed
+    Repositories I've committed to, newest pushedAt first, each as (name, my_commits, pushedAt).
+    ISO 8601 timestamps sort correctly as plain strings, so no parsing is needed here.
     """
     ranked = []
     for index, edge in enumerate(edges):
         my_commits = int(cache_data[index].split()[2])
         if my_commits > 0:
-            ranked.append((edge['node']['nameWithOwner'], my_commits))
-    ranked.sort(key=lambda item: item[1], reverse=True)
+            ranked.append((edge['node']['nameWithOwner'], my_commits, edge['node']['pushedAt']))
+    ranked.sort(key=lambda item: item[2], reverse=True)
     return ranked[:top_n]
 
 
@@ -261,6 +274,7 @@ def loc_query(owner_affiliation, comment_size=0, force_cache=False, cursor=None,
                 node {
                     ... on Repository {
                         nameWithOwner
+                        pushedAt
                         defaultBranchRef {
                             target {
                                 ... on Commit {
@@ -418,13 +432,16 @@ def build_left_panel(root, repos, langs):
         prefix = USER_NAME + '/'
         return name[len(prefix):] if name.startswith(prefix) else name
 
+    COUNT_COL_W = 45  # reserved width for the right-aligned commit count
+
     y = 30
-    add_text(PANEL_X, y, '- Top Repositories', 'panelTitle')
+    add_text(PANEL_X, y, '- Latest Repositories', 'panelTitle')
     if repos:
-        max_commits = repos[0][1]
-        for name, commits in repos:
+        max_commits = max(r[1] for r in repos)
+        for name, commits, pushed_at in repos:
             y += ROW_H
             add_text(PANEL_X, y, truncate(strip_owner(name)), 'panelLabel')
+            add_text(PANEL_X + PANEL_W - COUNT_COL_W, y, relative_time(pushed_at), 'panelMuted', anchor='end')
             add_text(PANEL_X + PANEL_W, y, '{:,}'.format(commits), 'cc', anchor='end')
             add_bar(PANEL_X, y + BAR_GAP, PANEL_W, commits / max_commits if max_commits else 0, fill_class='bar')
     else:
@@ -634,7 +651,7 @@ if __name__ == '__main__':
     repo_data, repo_time = perf_counter(graph_repos_stars, 'repos', ['OWNER'])
     contrib_data, contrib_time = perf_counter(graph_repos_stars, 'repos', ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
     follower_data, follower_time = perf_counter(follower_getter, USER_NAME)
-    top_repo_data, top_repo_time = perf_counter(top_repos_by_commits, loc_edges, loc_cache_data)
+    top_repo_data, top_repo_time = perf_counter(latest_repos, loc_edges, loc_cache_data)
     lang_edges, lang_time = perf_counter(graph_languages, ['OWNER'])
     top_lang_data = aggregate_languages(lang_edges)
 

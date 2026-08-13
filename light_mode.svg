@@ -17,6 +17,7 @@
 .panelTitle {fill: #3d4759; font-size: 14px;}
 .panelLabel {fill: #3d4759; font-size: 13px;}
 .panelValue {fill: #8993a8; font-size: 13px;}
+.panelMuted {fill: #aab2bd; font-size: 11px;}
 text, tspan {white-space: pre;}
 </style>
 <rect width="985px" height="530px" fill="#eef1f6" rx="15"/>
