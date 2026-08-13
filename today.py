@@ -424,8 +424,8 @@ def build_left_panel(root, repos, langs):
         max_commits = repos[0][1]
         for name, commits in repos:
             y += ROW_H
-            add_text(PANEL_X, y, truncate(strip_owner(name)), 'key')
-            add_text(PANEL_X + PANEL_W, y, '{:,}'.format(commits), 'value', anchor='end')
+            add_text(PANEL_X, y, truncate(strip_owner(name)), 'panelLabel')
+            add_text(PANEL_X + PANEL_W, y, '{:,}'.format(commits), 'cc', anchor='end')
             add_bar(PANEL_X, y + BAR_GAP, PANEL_W, commits / max_commits if max_commits else 0, fill_class='bar')
     else:
         y += ROW_H
