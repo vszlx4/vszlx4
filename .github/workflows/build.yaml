@@ -3,8 +3,10 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: {}
   schedule:
-    - cron: "0 4 * * *"
+    - cron: "17 4 * * *"
+    - cron: "17 16 * * *"
 jobs:
   build:
     runs-on: ubuntu-latest
