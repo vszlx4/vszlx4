@@ -170,6 +170,8 @@ def aggregate_languages(edges, top_n=6):
     totals = {}
     colors = {}
     for edge in edges:
+        if edge['node'] is None:  # GitHub can return a null node for a repo edge that's become inaccessible
+            continue
         for lang_edge in edge['node']['languages']['edges']:
             name = lang_edge['node']['name']
             totals[name] = totals.get(name, 0) + lang_edge['size']
@@ -300,7 +302,10 @@ def loc_query(owner_affiliation, comment_size=0, force_cache=False, cursor=None,
         edges += request.json()['data']['user']['repositories']['edges']            # Add on to the LoC count
         return loc_query(owner_affiliation, comment_size, force_cache, request.json()['data']['user']['repositories']['pageInfo']['endCursor'], edges)
     else:
-        return cache_builder(edges + request.json()['data']['user']['repositories']['edges'], comment_size, force_cache)
+        all_edges = edges + request.json()['data']['user']['repositories']['edges']
+        # GitHub can return a null node for a repo edge that's become inaccessible (deleted, transferred, etc.)
+        all_edges = [edge for edge in all_edges if edge['node'] is not None]
+        return cache_builder(all_edges, comment_size, force_cache)
 
 
 def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0):
@@ -381,7 +386,9 @@ def stars_counter(data):
     Count total stars in repositories owned by me
     """
     total_stars = 0
-    for node in data: total_stars += node['node']['stargazers']['totalCount']
+    for node in data:
+        if node['node'] is not None:  # GitHub can return a null node for a repo edge that's become inaccessible
+            total_stars += node['node']['stargazers']['totalCount']
     return total_stars
 
 
