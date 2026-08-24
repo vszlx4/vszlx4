@@ -586,24 +586,31 @@ def smooth_path(points):
         c1y = p1[1] + (p2[1] - p0[1]) / 6
         c2x = p2[0] - (p3[0] - p1[0]) / 6
         c2y = p2[1] - (p3[1] - p1[1]) / 6
+        # clamp the control points' y to the segment's own [p1.y, p2.y] range -- unclamped Catmull-Rom
+        # tangents can be pulled by a distant neighbor and overshoot past a local min/max, which visibly
+        # draws the line past the data (e.g. dipping below zero right before a spike)
+        y_lo, y_hi = (p1[1], p2[1]) if p1[1] <= p2[1] else (p2[1], p1[1])
+        c1y = min(max(c1y, y_lo), y_hi)
+        c2y = min(max(c2y, y_lo), y_hi)
         d.append('C {:.2f} {:.2f} {:.2f} {:.2f} {:.2f} {:.2f}'.format(c1x, c1y, c2x, c2y, *p2))
     return ' '.join(d)
 
 
-def build_activity_graph(root, daily_data):
+def build_activity_graph(root, daily_data, prev_daily_data=None):
     """
     Renders a 30-day contribution chart into the <g id="activity_graph"> placeholder: a gradient-filled
     area under a smoothed line, a dashed 30-day-average reference line, a dot at every real data point
     (so the smoothing never obscures where the actual data is), soft-haloed peak/trough markers, a fine
-    labeled grid on both axes, and a small legend distinguishing the two line styles. Reuses the card's
-    own green/red/blue accents (the same ones the repo bars and LOC ++/-- use) rather than new colors.
+    labeled grid on both axes, and a faded previous-month line rendered behind it all for comparison.
+    Reuses the card's own green/red/blue accents (the same ones the repo bars and LOC ++/-- use) rather
+    than new colors.
 
     The box spans the exact same column the key:value rows above and below it use (x=390 to the T=60
-    right edge). Inside it, the plotted data gets its own inset margin on all four sides -- generous at
-    top/bottom so a peak or trough marker's halo and label never clip the box edge, and on the sides so
-    axis labels have a lane that the line itself never enters. Every text label is drawn last, on top of
-    everything else (with a solid background chip behind the floating value/average labels), so the line
-    can never render over a legend, a number, or a date.
+    right edge), and the plotted data starts and ends flush with that same left/right edge -- inset only
+    by the halo radius of a peak/trough marker, so it never visually clips the box. Top/bottom get a
+    larger inset so a peak or trough marker's halo and label always stay inside the box. Every text label
+    is drawn last, on top of everything else (with a solid background chip behind floating value labels),
+    so the line can never render over a legend, a number, or a date.
     """
     container = root.find(".//*[@id='activity_graph']")
     if container is None:
@@ -617,10 +624,10 @@ def build_activity_graph(root, daily_data):
     CHART_H = 126
     LEGEND_Y = CHART_TOP - 10
 
-    PAD_X_LEFT = 30   # lane for the y-axis value labels, clear of where the line ever plots
-    PAD_X_RIGHT = 14  # keeps the last point/"Today" label off the box's right edge
-    PLOT_X0 = CHART_X + PAD_X_LEFT
-    PLOT_X1 = CHART_X + CHART_W - PAD_X_RIGHT
+    PAD_X = 8  # just enough for a peak/trough halo (r=7) to clear the box edge -- the line otherwise
+               # starts and ends flush with the same left/right column the key:value rows above use
+    PLOT_X0 = CHART_X + PAD_X
+    PLOT_X1 = CHART_X + CHART_W - PAD_X
 
     PAD_TOP = 25     # room for a peak's halo + label to stay fully inside the box
     PAD_BOTTOM = 14  # room for a trough's halo to clear the box's bottom edge
@@ -638,13 +645,18 @@ def build_activity_graph(root, daily_data):
     dates = [d for d, _ in daily_data]
     counts = [c for _, c in daily_data]
     n = len(counts)
-    max_v = max(counts) or 1
+    prev_counts = [c for _, c in prev_daily_data] if prev_daily_data else []
+    max_v = max(counts + prev_counts) or 1
     avg_v = sum(counts) / n
 
-    def xy(i, v):
-        x = PLOT_X0 + ((i / (n - 1)) if n > 1 else 0) * (PLOT_X1 - PLOT_X0)
-        y = PLOT_BOTTOM - (v / max_v) * (PLOT_BOTTOM - PLOT_TOP)
-        return (x, y)
+    def mk_xy(count):
+        def xy(i, v):
+            x = PLOT_X0 + ((i / (count - 1)) if count > 1 else 0) * (PLOT_X1 - PLOT_X0)
+            y = PLOT_BOTTOM - (v / max_v) * (PLOT_BOTTOM - PLOT_TOP)
+            return (x, y)
+        return xy
+
+    xy = mk_xy(n)
 
     def chip_label(x, y, text, cls, anchor='middle', font_size=10):
         """A small background-backed label: always legible even if the line passes behind it."""
@@ -667,7 +679,7 @@ def build_activity_graph(root, daily_data):
         t.set('text-anchor', anchor)
         t.text = text
 
-    # legend: a swatch of each line style above the chart, so "two lines, two meanings" reads immediately
+    # legend: a swatch of each line style above the chart, so each one's meaning reads immediately
     etree.SubElement(container, 'line', {
         'x1': str(CHART_X), 'y1': str(LEGEND_Y), 'x2': str(CHART_X + 18), 'y2': str(LEGEND_Y),
         'class': 'lineStroke', 'stroke-width': '2.5', 'stroke-linecap': 'round',
@@ -683,6 +695,15 @@ def build_activity_graph(root, daily_data):
     legend2 = etree.SubElement(container, 'text')
     legend2.set('x', str(legend2_x + 24)); legend2.set('y', str(LEGEND_Y + 3)); legend2.set('class', 'panelMuted')
     legend2.text = '30-day average'
+    if len(prev_counts) >= 2:
+        legend3_x = CHART_X + 300
+        etree.SubElement(container, 'line', {
+            'x1': str(legend3_x), 'y1': str(LEGEND_Y), 'x2': str(legend3_x + 18), 'y2': str(LEGEND_Y),
+            'class': 'prevStroke', 'stroke-width': '2', 'stroke-linecap': 'round',
+        })
+        legend3 = etree.SubElement(container, 'text')
+        legend3.set('x', str(legend3_x + 24)); legend3.set('y', str(LEGEND_Y + 3)); legend3.set('class', 'panelMuted')
+        legend3.text = 'Previous month activity'
 
     # soft panel behind the whole chart -- same box the grid and data both sit inside
     etree.SubElement(container, 'rect', {
@@ -690,11 +711,14 @@ def build_activity_graph(root, daily_data):
         'rx': '6', 'class': 'track', 'fill-opacity': '0.35',
     })
 
-    # gradient the area fill fades into, defined once per render
+    # gradients the area fills fade into, defined once per render
     defs = etree.SubElement(container, 'defs')
     grad = etree.SubElement(defs, 'linearGradient', {'id': 'activityFill', 'x1': '0', 'y1': '0', 'x2': '0', 'y2': '1'})
     etree.SubElement(grad, 'stop', {'offset': '0%', 'class': 'gradStop1'})
     etree.SubElement(grad, 'stop', {'offset': '100%', 'class': 'gradStop2'})
+    prev_grad = etree.SubElement(defs, 'linearGradient', {'id': 'prevActivityFill', 'x1': '0', 'y1': '0', 'x2': '0', 'y2': '1'})
+    etree.SubElement(prev_grad, 'stop', {'offset': '0%', 'class': 'prevGradStop1'})
+    etree.SubElement(prev_grad, 'stop', {'offset': '100%', 'class': 'prevGradStop2'})
 
     # horizontal grid: 6 evenly spaced lines across the padded plot range -- matches where data actually plots
     GRID_ROWS = 5
@@ -718,6 +742,23 @@ def build_activity_graph(root, daily_data):
             'x1': '{:.2f}'.format(gx), 'y1': str(CHART_TOP), 'x2': '{:.2f}'.format(gx), 'y2': str(CHART_TOP + CHART_H),
             'class': 'gridStroke', 'stroke-width': '0.75',
         })
+
+    # previous month's activity, faded and drawn first so it always sits behind the current month --
+    # regardless of which of the two reaches higher on the (shared) scale
+    if len(prev_counts) >= 2:
+        prev_xy = mk_xy(len(prev_counts))
+        prev_points = [prev_xy(i, v) for i, v in enumerate(prev_counts)]
+        prev_line_d = smooth_path(prev_points)
+        prev_area = etree.SubElement(container, 'path')
+        prev_area.set('d', '{} L {:.2f} {:.2f} L {:.2f} {:.2f} Z'.format(
+            prev_line_d, prev_points[-1][0], PLOT_BOTTOM, prev_points[0][0], PLOT_BOTTOM))
+        prev_area.set('fill', 'url(#prevActivityFill)')
+        prev_area.set('stroke', 'none')
+        prev_path = etree.SubElement(container, 'path')
+        prev_path.set('d', prev_line_d)
+        prev_path.set('class', 'prevStroke')
+        prev_path.set('stroke-width', '1.75')
+        prev_path.set('stroke-linecap', 'round')
 
     points = [xy(i, v) for i, v in enumerate(counts)]
     line_d = smooth_path(points)
@@ -781,10 +822,8 @@ def build_activity_graph(root, daily_data):
         px, py = points[i]
         chip_label(px, py - 12, str(counts[i]), cls)
 
-    chip_label(PLOT_X0 + 4, avg_y - 6, 'Avg {:.1f}'.format(avg_v), 'avgStroke', anchor='start')
 
-
-def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data, top_repos, top_langs, repo_langs, activity_data):
+def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data, top_repos, top_langs, repo_langs, activity_data, prev_activity_data=None):
     """
     Parse SVG files and update elements with my uptime, commits, stars, repositories, and lines written
     Every row's rightmost character lands on the same column (ROW_WIDTH) as the system-info block above it.
@@ -827,7 +866,7 @@ def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, cont
     find_and_replace(root, 'last_update', last_update_timestamp())
 
     build_left_panel(root, top_repos, top_langs, repo_langs)
-    build_activity_graph(root, activity_data)
+    build_activity_graph(root, activity_data, prev_activity_data)
     tree.write(filename, encoding='utf-8', xml_declaration=True)
 
 
@@ -955,12 +994,13 @@ if __name__ == '__main__':
     lang_edges, lang_time = perf_counter(graph_languages, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
     top_lang_data = aggregate_languages(lang_edges)
     repo_lang_data = repo_language_map(lang_edges)
-    activity_data, activity_time = perf_counter(daily_activity, 30)
+    activity_60d, activity_time = perf_counter(daily_activity, 60)
+    prev_activity_data, activity_data = activity_60d[:30], activity_60d[30:]
 
     for index in range(3): total_loc[index] = '{:,}'.format(total_loc[index]) # format added, deleted, and total LOC
 
-    svg_overwrite('dark_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:3], top_repo_data, top_lang_data, repo_lang_data, activity_data)
-    svg_overwrite('light_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:3], top_repo_data, top_lang_data, repo_lang_data, activity_data)
+    svg_overwrite('dark_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:3], top_repo_data, top_lang_data, repo_lang_data, activity_data, prev_activity_data)
+    svg_overwrite('light_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:3], top_repo_data, top_lang_data, repo_lang_data, activity_data, prev_activity_data)
 
     # move cursor to override 'Calculation times:' with 'Total function time:' and the total function time, then move cursor back
     print('\033[F\033[F\033[F\033[F\033[F\033[F\033[F\033[F',

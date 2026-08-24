@@ -25,6 +25,9 @@
 .chipBg {fill: #161b22;}
 .gradStop1 {stop-color: #3fb950; stop-opacity: 0.35;}
 .gradStop2 {stop-color: #3fb950; stop-opacity: 0;}
+.prevStroke {stroke: #8b949e; fill: none; stroke-opacity: 0.6;}
+.prevGradStop1 {stop-color: #8b949e; stop-opacity: 0.18;}
+.prevGradStop2 {stop-color: #8b949e; stop-opacity: 0;}
 text, tspan {white-space: pre;}
 </style>
 <rect width="985px" height="530px" fill="#161b22" rx="15"/>
