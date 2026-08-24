@@ -185,14 +185,27 @@ def latest_repos(edges, cache_data, top_n=6):
     """
     Repositories I've committed to, newest pushedAt first, each as (name, my_commits, pushedAt).
     ISO 8601 timestamps sort correctly as plain strings, so no parsing is needed here.
+    Excludes this profile-readme repo itself: every run pushes an "Updated README" commit to it,
+    which would otherwise keep bumping its own pushedAt and pin it at the top forever as "today".
     """
+    self_repo = USER_NAME + '/' + USER_NAME
     ranked = []
     for index, edge in enumerate(edges):
+        if edge['node']['nameWithOwner'] == self_repo:
+            continue
         my_commits = int(cache_data[index].split()[2])
         if my_commits > 0:
             ranked.append((edge['node']['nameWithOwner'], my_commits, edge['node']['pushedAt']))
     ranked.sort(key=lambda item: item[2], reverse=True)
     return ranked[:top_n]
+
+
+def last_update_timestamp():
+    """
+    Returns the current time formatted as 'YYYY/MM/DD HH:MM:SS GMT+3' (Saudi Arabia time)
+    """
+    now = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=3)
+    return now.strftime('%Y/%m/%d %H:%M:%S GMT+3')
 
 
 def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, deletion_total=0, my_commits=0, cursor=None):
@@ -533,6 +546,7 @@ def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, cont
     find_and_replace(root, 'loc_pad_close', ' ' * pad_r)
     justify_format(root, 'loc_add', loc_data[0])
     justify_format(root, 'loc_del', loc_data[1])
+    find_and_replace(root, 'last_update', last_update_timestamp())
 
     build_left_panel(root, top_repos, top_langs)
     tree.write(filename, encoding='utf-8', xml_declaration=True)
