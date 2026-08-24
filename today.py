@@ -16,7 +16,7 @@ import math
 # Issues and pull requests permissions not needed at the moment, but may be used in the future
 HEADERS = {'authorization': 'token '+ os.environ['ACCESS_TOKEN']}
 USER_NAME = os.environ['USER_NAME']
-QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0, 'recursive_loc': 0, 'graph_commits': 0, 'loc_query': 0, 'graph_languages': 0}
+QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0, 'recursive_loc': 0, 'graph_commits': 0, 'loc_query': 0, 'graph_languages': 0, 'daily_activity': 0}
 
 
 def account_uptime(created_at):
@@ -84,6 +84,41 @@ def graph_commits(start_date, end_date):
     variables = {'start_date': start_date,'end_date': end_date, 'login': USER_NAME}
     request = simple_request(graph_commits.__name__, query, variables)
     return int(request.json()['data']['user']['contributionsCollection']['contributionCalendar']['totalContributions'])
+
+
+def daily_activity(days=30):
+    """
+    Returns [(date_str, contribution_count), ...] for the last `days` days, oldest first, today last
+    """
+    query_count('daily_activity')
+    end = datetime.datetime.now(datetime.timezone.utc)
+    start = end - datetime.timedelta(days=days - 1)
+    query = '''
+    query($login: String!, $start_date: DateTime!, $end_date: DateTime!) {
+        user(login: $login) {
+            contributionsCollection(from: $start_date, to: $end_date) {
+                contributionCalendar {
+                    weeks {
+                        contributionDays {
+                            date
+                            contributionCount
+                        }
+                    }
+                }
+            }
+        }
+    }'''
+    variables = {
+        'login': USER_NAME,
+        'start_date': start.strftime('%Y-%m-%dT00:00:00Z'),
+        'end_date': end.strftime('%Y-%m-%dT23:59:59Z'),
+    }
+    request = simple_request(daily_activity.__name__, query, variables)
+    weeks = request.json()['data']['user']['contributionsCollection']['contributionCalendar']['weeks']
+    cutoff = start.strftime('%Y-%m-%d')
+    result = [(d['date'], d['contributionCount']) for week in weeks for d in week['contributionDays'] if d['date'] >= cutoff]
+    result.sort(key=lambda d: d[0])
+    return result[-days:]
 
 
 def graph_repos_stars(count_type, owner_affiliation, cursor=None, add_loc=0, del_loc=0):
@@ -535,7 +570,116 @@ def build_left_panel(root, repos, langs, repo_langs):
         add_text(PANEL_X, lang_title_y + ROW_H, 'No language data yet', 'panelValue')
 
 
-def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data, top_repos, top_langs, repo_langs):
+def smooth_path(points):
+    """
+    Returns an SVG path 'd' string tracing a smooth Catmull-Rom-to-Bezier spline through points.
+    """
+    if len(points) < 2:
+        return ''
+    d = ['M {:.2f} {:.2f}'.format(*points[0])]
+    for i in range(len(points) - 1):
+        p0 = points[i - 1] if i > 0 else points[i]
+        p1 = points[i]
+        p2 = points[i + 1]
+        p3 = points[i + 2] if i + 2 < len(points) else p2
+        c1x = p1[0] + (p2[0] - p0[0]) / 6
+        c1y = p1[1] + (p2[1] - p0[1]) / 6
+        c2x = p2[0] - (p3[0] - p1[0]) / 6
+        c2y = p2[1] - (p3[1] - p1[1]) / 6
+        d.append('C {:.2f} {:.2f} {:.2f} {:.2f} {:.2f} {:.2f}'.format(c1x, c1y, c2x, c2y, *p2))
+    return ' '.join(d)
+
+
+def build_activity_graph(root, daily_data):
+    """
+    Renders a smoothed activity line chart into the <g id="activity_graph"> placeholder: a gridded
+    background, the smoothed contribution line, markers for the highest/lowest days, and axis legends
+    (relative day labels on the x-axis, contribution counts on the y-axis). Reuses the card's own
+    green/red accents (the same ones the repo bars and LOC ++/-- use) rather than new colors.
+    """
+    container = root.find(".//*[@id='activity_graph']")
+    if container is None:
+        return
+    for child in list(container):
+        container.remove(child)
+
+    CHART_X = 390
+    CHART_TOP = 250
+    CHART_W = 550
+    CHART_H = 90
+    PAD_TOP = 14  # headroom so a peak sitting at the very top still has room for its label
+    PLOT_TOP = CHART_TOP + PAD_TOP
+    PLOT_BOTTOM = CHART_TOP + CHART_H
+
+    if not daily_data:
+        el = etree.SubElement(container, 'text')
+        el.set('x', str(CHART_X))
+        el.set('y', str(CHART_TOP + 20))
+        el.set('class', 'panelValue')
+        el.text = 'No activity data yet'
+        return
+
+    counts = [c for _, c in daily_data]
+    n = len(counts)
+    max_v = max(counts) or 1
+
+    def xy(i, v):
+        x = CHART_X + ((i / (n - 1)) if n > 1 else 0) * CHART_W
+        y = PLOT_BOTTOM - (v / max_v) * (PLOT_BOTTOM - PLOT_TOP)
+        return (x, y)
+
+    for frac in (0.0, 0.5, 1.0):
+        gy = PLOT_BOTTOM - frac * (PLOT_BOTTOM - PLOT_TOP)
+        etree.SubElement(container, 'line', {
+            'x1': str(CHART_X), 'y1': '{:.2f}'.format(gy), 'x2': str(CHART_X + CHART_W), 'y2': '{:.2f}'.format(gy),
+            'class': 'gridStroke',
+        })
+        label = etree.SubElement(container, 'text')
+        label.set('x', str(CHART_X + 4))
+        label.set('y', '{:.2f}'.format(gy - 2))
+        label.set('class', 'panelMuted')
+        label.text = str(round(frac * max_v))
+
+    for i in range(0, n, 7):
+        gx, _ = xy(i, 0)
+        etree.SubElement(container, 'line', {
+            'x1': '{:.2f}'.format(gx), 'y1': str(CHART_TOP), 'x2': '{:.2f}'.format(gx), 'y2': str(PLOT_BOTTOM),
+            'class': 'gridStroke',
+        })
+
+    points = [xy(i, v) for i, v in enumerate(counts)]
+    path = etree.SubElement(container, 'path')
+    path.set('d', smooth_path(points))
+    path.set('class', 'lineStroke')
+    path.set('stroke-width', '2')
+
+    peak_i = max(range(n), key=lambda i: counts[i])
+    trough_i = min(range(n), key=lambda i: counts[i])
+    for i, cls in ((peak_i, 'addColor'), (trough_i, 'delColor')):
+        px, py = points[i]
+        etree.SubElement(container, 'circle', {'cx': '{:.2f}'.format(px), 'cy': '{:.2f}'.format(py), 'r': '3', 'class': cls})
+        label = etree.SubElement(container, 'text')
+        label.set('x', '{:.2f}'.format(px))
+        label.set('y', '{:.2f}'.format(py - 8))
+        label.set('class', cls)
+        label.set('text-anchor', 'middle')
+        label.text = str(counts[i])
+
+    x_start = etree.SubElement(container, 'text')
+    x_start.set('x', str(CHART_X))
+    x_start.set('y', str(PLOT_BOTTOM + 16))
+    x_start.set('class', 'panelMuted')
+    x_start.text = '{} days ago'.format(n - 1)
+
+    x_end = etree.SubElement(container, 'text')
+    x_end.set('x', str(CHART_X + CHART_W))
+    x_end.set('y', str(PLOT_BOTTOM + 16))
+    x_end.set('class', 'panelMuted')
+    x_end.set('text-anchor', 'end')
+    x_end.text = 'Today'
+
+
+def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data, top_repos, top_langs, repo_langs, activity_data):
     """
     Parse SVG files and update elements with my uptime, commits, stars, repositories, and lines written
     Every row's rightmost character lands on the same column (ROW_WIDTH) as the system-info block above it.
@@ -578,6 +722,7 @@ def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, cont
     find_and_replace(root, 'last_update', last_update_timestamp())
 
     build_left_panel(root, top_repos, top_langs, repo_langs)
+    build_activity_graph(root, activity_data)
     tree.write(filename, encoding='utf-8', xml_declaration=True)
 
 
@@ -705,15 +850,16 @@ if __name__ == '__main__':
     lang_edges, lang_time = perf_counter(graph_languages, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
     top_lang_data = aggregate_languages(lang_edges)
     repo_lang_data = repo_language_map(lang_edges)
+    activity_data, activity_time = perf_counter(daily_activity, 30)
 
     for index in range(3): total_loc[index] = '{:,}'.format(total_loc[index]) # format added, deleted, and total LOC
 
-    svg_overwrite('dark_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:3], top_repo_data, top_lang_data, repo_lang_data)
-    svg_overwrite('light_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:3], top_repo_data, top_lang_data, repo_lang_data)
+    svg_overwrite('dark_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:3], top_repo_data, top_lang_data, repo_lang_data, activity_data)
+    svg_overwrite('light_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:3], top_repo_data, top_lang_data, repo_lang_data, activity_data)
 
     # move cursor to override 'Calculation times:' with 'Total function time:' and the total function time, then move cursor back
     print('\033[F\033[F\033[F\033[F\033[F\033[F\033[F\033[F',
-        '{:<21}'.format('Total function time:'), '{:>11}'.format('%.4f' % (user_time + uptime_time + loc_time + commit_time + star_time + repo_time + contrib_time + top_repo_time + lang_time)),
+        '{:<21}'.format('Total function time:'), '{:>11}'.format('%.4f' % (user_time + uptime_time + loc_time + commit_time + star_time + repo_time + contrib_time + top_repo_time + lang_time + activity_time)),
         ' s \033[E\033[E\033[E\033[E\033[E\033[E\033[E\033[E', sep='')
 
     print('Total GitHub GraphQL API calls:', '{:>3}'.format(sum(QUERY_COUNT.values())))
