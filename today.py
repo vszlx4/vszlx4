@@ -134,6 +134,7 @@ def graph_languages(owner_affiliation, cursor=None, edges=[]):
                 edges {
                     node {
                         ... on Repository {
+                            nameWithOwner
                             languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
                                 edges {
                                     size
@@ -179,6 +180,23 @@ def aggregate_languages(edges, top_n=6):
     grand_total = sum(totals.values()) or 1
     ranked = sorted(totals.items(), key=lambda item: item[1], reverse=True)[:top_n]
     return [(name, colors[name], size, size / grand_total) for name, size in ranked]
+
+
+def repo_language_map(edges):
+    """
+    Maps nameWithOwner -> [(language_name, color, fraction_of_that_repo's_bytes), ...] for the same
+    edges aggregate_languages() consumes, so each repo's own composition can be drawn as a bar.
+    """
+    by_repo = {}
+    for edge in edges:
+        if edge['node'] is None:
+            continue
+        lang_edges = edge['node']['languages']['edges']
+        total = sum(le['size'] for le in lang_edges) or 1
+        by_repo[edge['node']['nameWithOwner']] = [
+            (le['node']['name'], le['node']['color'] or '#858585', le['size'] / total) for le in lang_edges
+        ]
+    return by_repo
 
 
 def latest_repos(edges, cache_data, top_n=6):
@@ -405,7 +423,7 @@ def stars_counter(data):
     return total_stars
 
 
-def build_left_panel(root, repos, langs):
+def build_left_panel(root, repos, langs, repo_langs):
     """
     Renders the top-repositories bar list and the top-languages donut+legend into the <g id="left_panel">
     placeholder, fully replacing whatever it held from the previous run. Section headers sit on the same
@@ -420,7 +438,7 @@ def build_left_panel(root, repos, langs):
     PANEL_X = 20
     PANEL_W = 355
     ROW_H = 34
-    BAR_H = 6
+    REPO_BAR_H = 3  # thin -- the language mix is the point, not the bar's bulk
     BAR_GAP = 10  # distance from a row's text baseline down to the top of its bar
     NAME_LIMIT = 34
 
@@ -433,17 +451,29 @@ def build_left_panel(root, repos, langs):
             el.set('text-anchor', anchor)
         el.text = text
 
-    def add_bar(x, y, w, fraction, fill_class=None, fill=None):
-        etree.SubElement(container, 'rect', {
-            'x': str(x), 'y': str(y), 'width': str(w), 'height': str(BAR_H), 'rx': '3', 'class': 'track',
-        })
-        width = max(2, round(w * max(0.0, min(1.0, fraction))))
-        attrs = {'x': str(x), 'y': str(y), 'width': str(width), 'height': str(BAR_H), 'rx': '3'}
-        if fill_class:
-            attrs['class'] = fill_class
-        if fill:
-            attrs['fill'] = fill
-        etree.SubElement(container, 'rect', attrs)
+    def add_language_bar(x, y, w, h, segments):
+        """
+        A fully-filled, rounded bar split into one segment per language, sized by that language's
+        share of the repo -- same idea as the languages donut, just laid out as a strip. Segments are
+        drawn into a clip-pathed group so only the composite bar's outer edge is rounded, not each piece.
+        """
+        clip_id = 'lb-clip-{}'.format(int(y))
+        clip = etree.SubElement(container, 'clipPath', {'id': clip_id})
+        etree.SubElement(clip, 'rect', {'x': str(x), 'y': str(y), 'width': str(w), 'height': str(h), 'rx': str(h / 2)})
+        group = etree.SubElement(container, 'g', {'clip-path': 'url(#{})'.format(clip_id)})
+        if not segments:
+            etree.SubElement(group, 'rect', {'x': str(x), 'y': str(y), 'width': str(w), 'height': str(h), 'class': 'track'})
+            return
+        offset = 0.0
+        last = len(segments) - 1
+        for i, (name, color, fraction) in enumerate(segments):
+            seg_w = (w - offset) if i == last else w * fraction
+            seg_w = max(0.0, seg_w)
+            etree.SubElement(group, 'rect', {
+                'x': '{:.2f}'.format(x + offset), 'y': str(y), 'width': '{:.2f}'.format(seg_w), 'height': str(h),
+                'fill': color,
+            })
+            offset += seg_w
 
     def truncate(name, limit=NAME_LIMIT):
         return name if len(name) <= limit else name[:limit - 1] + '…'
@@ -457,13 +487,12 @@ def build_left_panel(root, repos, langs):
     y = 30
     add_text(PANEL_X, y, '- Latest Repositories', 'panelTitle')
     if repos:
-        max_commits = max(r[1] for r in repos)
         for name, commits, pushed_at in repos:
             y += ROW_H
             add_text(PANEL_X, y, truncate(strip_owner(name)), 'panelLabel')
             add_text(PANEL_X + PANEL_W - COUNT_COL_W, y, relative_time(pushed_at), 'panelMuted', anchor='end')
             add_text(PANEL_X + PANEL_W, y, '{:,}'.format(commits), 'cc', anchor='end')
-            add_bar(PANEL_X, y + BAR_GAP, PANEL_W, commits / max_commits if max_commits else 0, fill_class='bar')
+            add_language_bar(PANEL_X, y + BAR_GAP, PANEL_W, REPO_BAR_H, repo_langs.get(name, []))
     else:
         y += ROW_H
         add_text(PANEL_X, y, 'No repositories yet', 'panelValue')
@@ -506,7 +535,7 @@ def build_left_panel(root, repos, langs):
         add_text(PANEL_X, lang_title_y + ROW_H, 'No language data yet', 'panelValue')
 
 
-def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data, top_repos, top_langs):
+def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data, top_repos, top_langs, repo_langs):
     """
     Parse SVG files and update elements with my uptime, commits, stars, repositories, and lines written
     Every row's rightmost character lands on the same column (ROW_WIDTH) as the system-info block above it.
@@ -548,7 +577,7 @@ def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, cont
     justify_format(root, 'loc_del', loc_data[1])
     find_and_replace(root, 'last_update', last_update_timestamp())
 
-    build_left_panel(root, top_repos, top_langs)
+    build_left_panel(root, top_repos, top_langs, repo_langs)
     tree.write(filename, encoding='utf-8', xml_declaration=True)
 
 
@@ -673,13 +702,14 @@ if __name__ == '__main__':
     contrib_data, contrib_time = perf_counter(graph_repos_stars, 'repos', ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
     follower_data, follower_time = perf_counter(follower_getter, USER_NAME)
     top_repo_data, top_repo_time = perf_counter(latest_repos, loc_edges, loc_cache_data)
-    lang_edges, lang_time = perf_counter(graph_languages, ['OWNER'])
+    lang_edges, lang_time = perf_counter(graph_languages, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
     top_lang_data = aggregate_languages(lang_edges)
+    repo_lang_data = repo_language_map(lang_edges)
 
     for index in range(3): total_loc[index] = '{:,}'.format(total_loc[index]) # format added, deleted, and total LOC
 
-    svg_overwrite('dark_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:3], top_repo_data, top_lang_data)
-    svg_overwrite('light_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:3], top_repo_data, top_lang_data)
+    svg_overwrite('dark_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:3], top_repo_data, top_lang_data, repo_lang_data)
+    svg_overwrite('light_mode.svg', uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:3], top_repo_data, top_lang_data, repo_lang_data)
 
     # move cursor to override 'Calculation times:' with 'Total function time:' and the total function time, then move cursor back
     print('\033[F\033[F\033[F\033[F\033[F\033[F\033[F\033[F',
