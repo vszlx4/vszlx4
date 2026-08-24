@@ -592,10 +592,11 @@ def smooth_path(points):
 
 def build_activity_graph(root, daily_data):
     """
-    Renders a smoothed activity line chart into the <g id="activity_graph"> placeholder: a gridded
-    background, the smoothed contribution line, markers for the highest/lowest days, and axis legends
-    (relative day labels on the x-axis, contribution counts on the y-axis). Reuses the card's own
-    green/red accents (the same ones the repo bars and LOC ++/-- use) rather than new colors.
+    Renders a 30-day contribution chart into the <g id="activity_graph"> placeholder: a gradient-filled
+    area under a smoothed line, a dashed 30-day-average reference line, a dot at every real data point
+    (so the smoothing never obscures where the actual data is), soft-haloed peak/trough markers, a fine
+    labeled grid on both axes, and a small legend distinguishing the two line styles. Reuses the card's
+    own green/red/blue accents (the same ones the repo bars and LOC ++/-- use) rather than new colors.
     """
     container = root.find(".//*[@id='activity_graph']")
     if container is None:
@@ -604,12 +605,13 @@ def build_activity_graph(root, daily_data):
         container.remove(child)
 
     CHART_X = 390
-    CHART_TOP = 250
+    CHART_TOP = 258
     CHART_W = 550
-    CHART_H = 90
-    PAD_TOP = 14  # headroom so a peak sitting at the very top still has room for its label
+    CHART_H = 126
+    PAD_TOP = 16  # headroom so a peak sitting at the very top still has room for its label
     PLOT_TOP = CHART_TOP + PAD_TOP
     PLOT_BOTTOM = CHART_TOP + CHART_H
+    LEGEND_Y = CHART_TOP - 10
 
     if not daily_data:
         el = etree.SubElement(container, 'text')
@@ -619,20 +621,54 @@ def build_activity_graph(root, daily_data):
         el.text = 'No activity data yet'
         return
 
+    dates = [d for d, _ in daily_data]
     counts = [c for _, c in daily_data]
     n = len(counts)
     max_v = max(counts) or 1
+    avg_v = sum(counts) / n
 
     def xy(i, v):
         x = CHART_X + ((i / (n - 1)) if n > 1 else 0) * CHART_W
         y = PLOT_BOTTOM - (v / max_v) * (PLOT_BOTTOM - PLOT_TOP)
         return (x, y)
 
-    for frac in (0.0, 0.5, 1.0):
+    # legend: a swatch of each line style above the chart, so "two lines, two meanings" reads immediately
+    etree.SubElement(container, 'line', {
+        'x1': str(CHART_X), 'y1': str(LEGEND_Y), 'x2': str(CHART_X + 18), 'y2': str(LEGEND_Y),
+        'class': 'lineStroke', 'stroke-width': '2.5', 'stroke-linecap': 'round',
+    })
+    legend1 = etree.SubElement(container, 'text')
+    legend1.set('x', str(CHART_X + 24)); legend1.set('y', str(LEGEND_Y + 3)); legend1.set('class', 'panelMuted')
+    legend1.text = 'Daily activity'
+    legend2_x = CHART_X + 150
+    etree.SubElement(container, 'line', {
+        'x1': str(legend2_x), 'y1': str(LEGEND_Y), 'x2': str(legend2_x + 18), 'y2': str(LEGEND_Y),
+        'class': 'avgStroke', 'stroke-width': '1.5', 'stroke-dasharray': '5 4',
+    })
+    legend2 = etree.SubElement(container, 'text')
+    legend2.set('x', str(legend2_x + 24)); legend2.set('y', str(LEGEND_Y + 3)); legend2.set('class', 'panelMuted')
+    legend2.text = '30-day average'
+
+    # soft panel behind the whole chart
+    etree.SubElement(container, 'rect', {
+        'x': str(CHART_X), 'y': str(CHART_TOP), 'width': str(CHART_W), 'height': str(CHART_H),
+        'rx': '6', 'class': 'track', 'fill-opacity': '0.35',
+    })
+
+    # gradient the area fill fades into, defined once per render
+    defs = etree.SubElement(container, 'defs')
+    grad = etree.SubElement(defs, 'linearGradient', {'id': 'activityFill', 'x1': '0', 'y1': '0', 'x2': '0', 'y2': '1'})
+    etree.SubElement(grad, 'stop', {'offset': '0%', 'class': 'gradStop1'})
+    etree.SubElement(grad, 'stop', {'offset': '100%', 'class': 'gradStop2'})
+
+    # horizontal grid: 6 evenly spaced, labeled lines -- finer and more descriptive than a bare 0/50/100
+    GRID_ROWS = 5
+    for step in range(GRID_ROWS + 1):
+        frac = step / GRID_ROWS
         gy = PLOT_BOTTOM - frac * (PLOT_BOTTOM - PLOT_TOP)
         etree.SubElement(container, 'line', {
             'x1': str(CHART_X), 'y1': '{:.2f}'.format(gy), 'x2': str(CHART_X + CHART_W), 'y2': '{:.2f}'.format(gy),
-            'class': 'gridStroke',
+            'class': 'gridStroke', 'stroke-width': '0.75',
         })
         label = etree.SubElement(container, 'text')
         label.set('x', str(CHART_X + 4))
@@ -640,43 +676,74 @@ def build_activity_graph(root, daily_data):
         label.set('class', 'panelMuted')
         label.text = str(round(frac * max_v))
 
-    for i in range(0, n, 7):
+    # vertical grid: every 5 days, each labeled with its short date -- smaller cells than a weekly grid
+    STEP_DAYS = 5
+    for i in range(0, n, STEP_DAYS):
         gx, _ = xy(i, 0)
         etree.SubElement(container, 'line', {
             'x1': '{:.2f}'.format(gx), 'y1': str(CHART_TOP), 'x2': '{:.2f}'.format(gx), 'y2': str(PLOT_BOTTOM),
-            'class': 'gridStroke',
+            'class': 'gridStroke', 'stroke-width': '0.75',
         })
+        label = etree.SubElement(container, 'text')
+        label.set('x', '{:.2f}'.format(gx))
+        label.set('y', str(PLOT_BOTTOM + 16))
+        label.set('class', 'panelMuted')
+        label.set('text-anchor', 'middle')
+        label.text = dates[i][5:].replace('-', '/')
+    end_label = etree.SubElement(container, 'text')
+    end_label.set('x', str(CHART_X + CHART_W))
+    end_label.set('y', str(PLOT_BOTTOM + 16))
+    end_label.set('class', 'panelMuted')
+    end_label.set('text-anchor', 'end')
+    end_label.text = 'Today'
 
     points = [xy(i, v) for i, v in enumerate(counts)]
-    path = etree.SubElement(container, 'path')
-    path.set('d', smooth_path(points))
-    path.set('class', 'lineStroke')
-    path.set('stroke-width', '2')
+    line_d = smooth_path(points)
 
+    # gradient-filled area under the smoothed line
+    area = etree.SubElement(container, 'path')
+    area.set('d', '{} L {:.2f} {:.2f} L {:.2f} {:.2f} Z'.format(
+        line_d, points[-1][0], PLOT_BOTTOM, points[0][0], PLOT_BOTTOM))
+    area.set('fill', 'url(#activityFill)')
+    area.set('stroke', 'none')
+
+    # dashed reference line for the 30-day average, so any given day reads as above/below trend
+    avg_y = xy(0, avg_v)[1]
+    etree.SubElement(container, 'line', {
+        'x1': str(CHART_X), 'y1': '{:.2f}'.format(avg_y), 'x2': str(CHART_X + CHART_W), 'y2': '{:.2f}'.format(avg_y),
+        'class': 'avgStroke', 'stroke-width': '1.5', 'stroke-dasharray': '5 4',
+    })
+    avg_label = etree.SubElement(container, 'text')
+    avg_label.set('x', str(CHART_X + CHART_W - 4))
+    avg_label.set('y', '{:.2f}'.format(avg_y - 4))
+    avg_label.set('class', 'avgStroke')
+    avg_label.set('text-anchor', 'end')
+    avg_label.text = 'Avg {:.1f}'.format(avg_v)
+
+    # the smoothed activity line itself, drawn over the fill and average line
+    path = etree.SubElement(container, 'path')
+    path.set('d', line_d)
+    path.set('class', 'lineStroke')
+    path.set('stroke-width', '2.25')
+    path.set('stroke-linecap', 'round')
+
+    # a small dot at every real day, so the eye can always find the actual data under the smoothing
+    for px, py in points:
+        etree.SubElement(container, 'circle', {'cx': '{:.2f}'.format(px), 'cy': '{:.2f}'.format(py), 'r': '1.6', 'class': 'addColor'})
+
+    # highest/lowest days: a soft halo behind a solid dot, plus their value
     peak_i = max(range(n), key=lambda i: counts[i])
     trough_i = min(range(n), key=lambda i: counts[i])
     for i, cls in ((peak_i, 'addColor'), (trough_i, 'delColor')):
         px, py = points[i]
-        etree.SubElement(container, 'circle', {'cx': '{:.2f}'.format(px), 'cy': '{:.2f}'.format(py), 'r': '3', 'class': cls})
+        etree.SubElement(container, 'circle', {'cx': '{:.2f}'.format(px), 'cy': '{:.2f}'.format(py), 'r': '7', 'class': cls, 'fill-opacity': '0.22'})
+        etree.SubElement(container, 'circle', {'cx': '{:.2f}'.format(px), 'cy': '{:.2f}'.format(py), 'r': '3.5', 'class': cls})
         label = etree.SubElement(container, 'text')
         label.set('x', '{:.2f}'.format(px))
-        label.set('y', '{:.2f}'.format(py - 8))
+        label.set('y', '{:.2f}'.format(py - 10))
         label.set('class', cls)
         label.set('text-anchor', 'middle')
         label.text = str(counts[i])
-
-    x_start = etree.SubElement(container, 'text')
-    x_start.set('x', str(CHART_X))
-    x_start.set('y', str(PLOT_BOTTOM + 16))
-    x_start.set('class', 'panelMuted')
-    x_start.text = '{} days ago'.format(n - 1)
-
-    x_end = etree.SubElement(container, 'text')
-    x_end.set('x', str(CHART_X + CHART_W))
-    x_end.set('y', str(PLOT_BOTTOM + 16))
-    x_end.set('class', 'panelMuted')
-    x_end.set('text-anchor', 'end')
-    x_end.text = 'Today'
 
 
 def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data, top_repos, top_langs, repo_langs, activity_data):

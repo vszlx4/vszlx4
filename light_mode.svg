@@ -20,6 +20,9 @@
 .panelMuted {fill: #aab2bd; font-size: 11px;}
 .lineStroke {stroke: #1a7f37; fill: none;}
 .gridStroke {stroke: #d0d7de;}
+.avgStroke {stroke: #0550ae; fill: #0550ae;}
+.gradStop1 {stop-color: #1a7f37; stop-opacity: 0.3;}
+.gradStop2 {stop-color: #1a7f37; stop-opacity: 0;}
 text, tspan {white-space: pre;}
 </style>
 <rect width="985px" height="530px" fill="#eef1f6" rx="15"/>
@@ -36,9 +39,9 @@ text, tspan {white-space: pre;}
 <tspan x="390" y="170" class="cc">. </tspan>
 <tspan x="390" y="190" class="cc">. </tspan><tspan class="key">Last</tspan>.<tspan class="key">Update</tspan>:<tspan class="cc"> ................... </tspan><tspan class="addColor" id="last_update">2026/08/24 16:01:42 GMT+3</tspan>
 <tspan x="390" y="230">- Activity Graph</tspan> -———————————————————————————————————————-—-
-<tspan x="390" y="390">- GitHub Stats</tspan> -—————————————————————————————————————————-—-
-<tspan x="390" y="410" class="cc">. </tspan><tspan class="key">Repos</tspan>:<tspan class="cc" id="repo_data_dots"> .... </tspan><tspan class="value" id="repo_data">15</tspan> {<tspan class="key">Contributed</tspan>: <tspan class="value" id="contrib_data">15</tspan>} | <tspan class="key">Stars</tspan>:<tspan class="cc" id="star_data_dots"> .............. </tspan><tspan class="value" id="star_data">0</tspan>
-<tspan x="390" y="430" class="cc">. </tspan><tspan class="key">Commits</tspan>:<tspan class="cc" id="commit_data_dots"> ................... </tspan><tspan class="value" id="commit_data">157</tspan> | <tspan class="key">Followers</tspan>:<tspan class="cc" id="follower_data_dots"> .......... </tspan><tspan class="value" id="follower_data">4</tspan>
-<tspan x="390" y="450" class="cc">. </tspan><tspan class="key">Lines of Code on GitHub</tspan>:<tspan class="cc" id="loc_data_dots">. </tspan><tspan class="value" id="loc_data">67,811</tspan> (<tspan class="cc" id="loc_pad_open">   </tspan><tspan class="addColor" id="loc_add">70,816</tspan><tspan class="addColor">++</tspan>, <tspan class="delColor" id="loc_del">3,005</tspan><tspan class="delColor">--</tspan><tspan class="cc" id="loc_pad_close">   </tspan>)
+<tspan x="390" y="440">- GitHub Stats</tspan> -—————————————————————————————————————————-—-
+<tspan x="390" y="460" class="cc">. </tspan><tspan class="key">Repos</tspan>:<tspan class="cc" id="repo_data_dots"> .... </tspan><tspan class="value" id="repo_data">15</tspan> {<tspan class="key">Contributed</tspan>: <tspan class="value" id="contrib_data">15</tspan>} | <tspan class="key">Stars</tspan>:<tspan class="cc" id="star_data_dots"> .............. </tspan><tspan class="value" id="star_data">0</tspan>
+<tspan x="390" y="480" class="cc">. </tspan><tspan class="key">Commits</tspan>:<tspan class="cc" id="commit_data_dots"> ................... </tspan><tspan class="value" id="commit_data">157</tspan> | <tspan class="key">Followers</tspan>:<tspan class="cc" id="follower_data_dots"> .......... </tspan><tspan class="value" id="follower_data">4</tspan>
+<tspan x="390" y="500" class="cc">. </tspan><tspan class="key">Lines of Code on GitHub</tspan>:<tspan class="cc" id="loc_data_dots">. </tspan><tspan class="value" id="loc_data">67,811</tspan> (<tspan class="cc" id="loc_pad_open">   </tspan><tspan class="addColor" id="loc_add">70,816</tspan><tspan class="addColor">++</tspan>, <tspan class="delColor" id="loc_del">3,005</tspan><tspan class="delColor">--</tspan><tspan class="cc" id="loc_pad_close">   </tspan>)
 </text>
 </svg>
