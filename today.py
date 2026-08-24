@@ -597,6 +597,13 @@ def build_activity_graph(root, daily_data):
     (so the smoothing never obscures where the actual data is), soft-haloed peak/trough markers, a fine
     labeled grid on both axes, and a small legend distinguishing the two line styles. Reuses the card's
     own green/red/blue accents (the same ones the repo bars and LOC ++/-- use) rather than new colors.
+
+    The box spans the exact same column the key:value rows above and below it use (x=390 to the T=60
+    right edge). Inside it, the plotted data gets its own inset margin on all four sides -- generous at
+    top/bottom so a peak or trough marker's halo and label never clip the box edge, and on the sides so
+    axis labels have a lane that the line itself never enters. Every text label is drawn last, on top of
+    everything else (with a solid background chip behind the floating value/average labels), so the line
+    can never render over a legend, a number, or a date.
     """
     container = root.find(".//*[@id='activity_graph']")
     if container is None:
@@ -606,12 +613,19 @@ def build_activity_graph(root, daily_data):
 
     CHART_X = 390
     CHART_TOP = 258
-    CHART_W = 550
+    CHART_W = 576  # matches the T=60 column width (60 chars * 9.6px) the rows above/below align to
     CHART_H = 126
-    PAD_TOP = 16  # headroom so a peak sitting at the very top still has room for its label
-    PLOT_TOP = CHART_TOP + PAD_TOP
-    PLOT_BOTTOM = CHART_TOP + CHART_H
     LEGEND_Y = CHART_TOP - 10
+
+    PAD_X_LEFT = 30   # lane for the y-axis value labels, clear of where the line ever plots
+    PAD_X_RIGHT = 14  # keeps the last point/"Today" label off the box's right edge
+    PLOT_X0 = CHART_X + PAD_X_LEFT
+    PLOT_X1 = CHART_X + CHART_W - PAD_X_RIGHT
+
+    PAD_TOP = 25     # room for a peak's halo + label to stay fully inside the box
+    PAD_BOTTOM = 14  # room for a trough's halo to clear the box's bottom edge
+    PLOT_TOP = CHART_TOP + PAD_TOP
+    PLOT_BOTTOM = CHART_TOP + CHART_H - PAD_BOTTOM
 
     if not daily_data:
         el = etree.SubElement(container, 'text')
@@ -628,9 +642,30 @@ def build_activity_graph(root, daily_data):
     avg_v = sum(counts) / n
 
     def xy(i, v):
-        x = CHART_X + ((i / (n - 1)) if n > 1 else 0) * CHART_W
+        x = PLOT_X0 + ((i / (n - 1)) if n > 1 else 0) * (PLOT_X1 - PLOT_X0)
         y = PLOT_BOTTOM - (v / max_v) * (PLOT_BOTTOM - PLOT_TOP)
         return (x, y)
+
+    def chip_label(x, y, text, cls, anchor='middle', font_size=10):
+        """A small background-backed label: always legible even if the line passes behind it."""
+        w = len(text) * font_size * 0.62 + 6
+        if anchor == 'end':
+            rx = x - w + 2
+        elif anchor == 'start':
+            rx = x - 2
+        else:
+            rx = x - w / 2
+        etree.SubElement(container, 'rect', {
+            'x': '{:.2f}'.format(rx), 'y': '{:.2f}'.format(y - font_size - 1),
+            'width': '{:.2f}'.format(w), 'height': '{:.2f}'.format(font_size + 5),
+            'rx': '3', 'class': 'chipBg',
+        })
+        t = etree.SubElement(container, 'text')
+        t.set('x', '{:.2f}'.format(x))
+        t.set('y', '{:.2f}'.format(y))
+        t.set('class', cls + ' chartLabel')
+        t.set('text-anchor', anchor)
+        t.text = text
 
     # legend: a swatch of each line style above the chart, so "two lines, two meanings" reads immediately
     etree.SubElement(container, 'line', {
@@ -649,7 +684,7 @@ def build_activity_graph(root, daily_data):
     legend2.set('x', str(legend2_x + 24)); legend2.set('y', str(LEGEND_Y + 3)); legend2.set('class', 'panelMuted')
     legend2.text = '30-day average'
 
-    # soft panel behind the whole chart
+    # soft panel behind the whole chart -- same box the grid and data both sit inside
     etree.SubElement(container, 'rect', {
         'x': str(CHART_X), 'y': str(CHART_TOP), 'width': str(CHART_W), 'height': str(CHART_H),
         'rx': '6', 'class': 'track', 'fill-opacity': '0.35',
@@ -661,41 +696,28 @@ def build_activity_graph(root, daily_data):
     etree.SubElement(grad, 'stop', {'offset': '0%', 'class': 'gradStop1'})
     etree.SubElement(grad, 'stop', {'offset': '100%', 'class': 'gradStop2'})
 
-    # horizontal grid: 6 evenly spaced, labeled lines -- finer and more descriptive than a bare 0/50/100
+    # horizontal grid: 6 evenly spaced lines across the padded plot range -- matches where data actually plots
     GRID_ROWS = 5
+    grid_y = []
     for step in range(GRID_ROWS + 1):
         frac = step / GRID_ROWS
         gy = PLOT_BOTTOM - frac * (PLOT_BOTTOM - PLOT_TOP)
+        grid_y.append((gy, round(frac * max_v)))
         etree.SubElement(container, 'line', {
             'x1': str(CHART_X), 'y1': '{:.2f}'.format(gy), 'x2': str(CHART_X + CHART_W), 'y2': '{:.2f}'.format(gy),
             'class': 'gridStroke', 'stroke-width': '0.75',
         })
-        label = etree.SubElement(container, 'text')
-        label.set('x', str(CHART_X + 4))
-        label.set('y', '{:.2f}'.format(gy - 2))
-        label.set('class', 'panelMuted')
-        label.text = str(round(frac * max_v))
 
-    # vertical grid: every 5 days, each labeled with its short date -- smaller cells than a weekly grid
+    # vertical grid: every 5 days across the padded plot range -- smaller cells than a weekly grid
     STEP_DAYS = 5
+    grid_x = []
     for i in range(0, n, STEP_DAYS):
         gx, _ = xy(i, 0)
+        grid_x.append((gx, dates[i][5:].replace('-', '/')))
         etree.SubElement(container, 'line', {
-            'x1': '{:.2f}'.format(gx), 'y1': str(CHART_TOP), 'x2': '{:.2f}'.format(gx), 'y2': str(PLOT_BOTTOM),
+            'x1': '{:.2f}'.format(gx), 'y1': str(CHART_TOP), 'x2': '{:.2f}'.format(gx), 'y2': str(CHART_TOP + CHART_H),
             'class': 'gridStroke', 'stroke-width': '0.75',
         })
-        label = etree.SubElement(container, 'text')
-        label.set('x', '{:.2f}'.format(gx))
-        label.set('y', str(PLOT_BOTTOM + 16))
-        label.set('class', 'panelMuted')
-        label.set('text-anchor', 'middle')
-        label.text = dates[i][5:].replace('-', '/')
-    end_label = etree.SubElement(container, 'text')
-    end_label.set('x', str(CHART_X + CHART_W))
-    end_label.set('y', str(PLOT_BOTTOM + 16))
-    end_label.set('class', 'panelMuted')
-    end_label.set('text-anchor', 'end')
-    end_label.text = 'Today'
 
     points = [xy(i, v) for i, v in enumerate(counts)]
     line_d = smooth_path(points)
@@ -713,12 +735,6 @@ def build_activity_graph(root, daily_data):
         'x1': str(CHART_X), 'y1': '{:.2f}'.format(avg_y), 'x2': str(CHART_X + CHART_W), 'y2': '{:.2f}'.format(avg_y),
         'class': 'avgStroke', 'stroke-width': '1.5', 'stroke-dasharray': '5 4',
     })
-    avg_label = etree.SubElement(container, 'text')
-    avg_label.set('x', str(CHART_X + CHART_W - 4))
-    avg_label.set('y', '{:.2f}'.format(avg_y - 4))
-    avg_label.set('class', 'avgStroke')
-    avg_label.set('text-anchor', 'end')
-    avg_label.text = 'Avg {:.1f}'.format(avg_v)
 
     # the smoothed activity line itself, drawn over the fill and average line
     path = etree.SubElement(container, 'path')
@@ -731,19 +747,41 @@ def build_activity_graph(root, daily_data):
     for px, py in points:
         etree.SubElement(container, 'circle', {'cx': '{:.2f}'.format(px), 'cy': '{:.2f}'.format(py), 'r': '1.6', 'class': 'addColor'})
 
-    # highest/lowest days: a soft halo behind a solid dot, plus their value
+    # highest/lowest days: a soft halo behind a solid dot; their value label is added below with the rest
     peak_i = max(range(n), key=lambda i: counts[i])
     trough_i = min(range(n), key=lambda i: counts[i])
     for i, cls in ((peak_i, 'addColor'), (trough_i, 'delColor')):
         px, py = points[i]
         etree.SubElement(container, 'circle', {'cx': '{:.2f}'.format(px), 'cy': '{:.2f}'.format(py), 'r': '7', 'class': cls, 'fill-opacity': '0.22'})
         etree.SubElement(container, 'circle', {'cx': '{:.2f}'.format(px), 'cy': '{:.2f}'.format(py), 'r': '3.5', 'class': cls})
+
+    # every text label is drawn last so nothing -- the line, the fill, the dots -- can ever render over it
+    for gy, value in grid_y:
         label = etree.SubElement(container, 'text')
-        label.set('x', '{:.2f}'.format(px))
-        label.set('y', '{:.2f}'.format(py - 10))
-        label.set('class', cls)
+        label.set('x', str(CHART_X + 4))
+        label.set('y', '{:.2f}'.format(gy - 2))
+        label.set('class', 'panelMuted chartLabel')
+        label.text = str(value)
+
+    for gx, text in grid_x:
+        label = etree.SubElement(container, 'text')
+        label.set('x', '{:.2f}'.format(gx))
+        label.set('y', str(CHART_TOP + CHART_H + 16))
+        label.set('class', 'panelMuted chartLabel')
         label.set('text-anchor', 'middle')
-        label.text = str(counts[i])
+        label.text = text
+    end_label = etree.SubElement(container, 'text')
+    end_label.set('x', str(PLOT_X1))
+    end_label.set('y', str(CHART_TOP + CHART_H + 16))
+    end_label.set('class', 'panelMuted chartLabel')
+    end_label.set('text-anchor', 'end')
+    end_label.text = 'Today'
+
+    for i, cls in ((peak_i, 'addColor'), (trough_i, 'delColor')):
+        px, py = points[i]
+        chip_label(px, py - 12, str(counts[i]), cls)
+
+    chip_label(PLOT_X0 + 4, avg_y - 6, 'Avg {:.1f}'.format(avg_v), 'avgStroke', anchor='start')
 
 
 def svg_overwrite(filename, uptime_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data, top_repos, top_langs, repo_langs, activity_data):

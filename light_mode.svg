@@ -21,6 +21,8 @@
 .lineStroke {stroke: #1a7f37; fill: none;}
 .gridStroke {stroke: #d0d7de;}
 .avgStroke {stroke: #0550ae; fill: #0550ae;}
+.chartLabel {font-size: 10px;}
+.chipBg {fill: #eef1f6;}
 .gradStop1 {stop-color: #1a7f37; stop-opacity: 0.3;}
 .gradStop2 {stop-color: #1a7f37; stop-opacity: 0;}
 text, tspan {white-space: pre;}
