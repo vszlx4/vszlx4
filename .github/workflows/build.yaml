@@ -24,7 +24,7 @@ jobs:
         with:
           fetch-depth: 1
       - name: Get Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Configure pip cache
