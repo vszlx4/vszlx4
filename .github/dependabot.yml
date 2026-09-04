@@ -1,0 +1,21 @@
+# Pinning cache/requirements.txt stops a surprise upstream release from breaking a
+# scheduled build -- but pins rot, and a stale pin is its own outage waiting to happen.
+# These keep the pins and the action versions moving deliberately, as reviewable PRs,
+# instead of drifting silently until something snaps.
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/cache"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "deps"
+
+  # Also catches the next Node runtime deprecation before it turns into a warning
+  # annotation on every run.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"
