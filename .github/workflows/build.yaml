@@ -7,6 +7,12 @@ on:
   schedule:
     - cron: "17 4 * * *"
     - cron: "17 16 * * *"
+
+env:
+  # Single source of truth for the interpreter: used both to install Python and to key the
+  # pip cache, so a future version bump can never silently reuse another version's wheels.
+  PYTHON_VERSION: '3.12'
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,21 +20,25 @@ jobs:
       contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
-      - name: Get Python 3.8
-        uses: actions/setup-python@v5
+      - name: Get Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.8'
+          python-version: ${{ env.PYTHON_VERSION }}
       - name: Configure pip cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/cache/requirements.txt') }}
-          restore-keys: ${{ runner.os }}-pip-
+          key: ${{ runner.os }}-pip-py${{ env.PYTHON_VERSION }}-${{ hashFiles('cache/requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-py${{ env.PYTHON_VERSION }}-
       - name: Install dependencies
-        run: python -m pip install -r cache/requirements.txt
+        # --only-binary=:all: forbids pip from falling back to a source build. Without it a
+        # missing wheel silently becomes a C compile against the libxml2/libxslt headers the
+        # runner does not have -- which is exactly how this job broke on 2026-09-03. With it,
+        # a missing wheel fails immediately and names the package.
+        run: python -m pip install --only-binary=:all: -r cache/requirements.txt
       - name: Update README file
         env:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
