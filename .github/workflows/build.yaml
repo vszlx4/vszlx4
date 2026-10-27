@@ -1,9 +1,9 @@
 name: Dashboard
 
 on:
+  # The bot's own dashboard commits use GITHUB_TOKEN, which never starts workflows, so no path filter is needed.
   push:
     branches: [main, dashboard-redesign]
-    paths-ignore: [dashboard.svg]
   schedule:
     - cron: "17 3 * * *"
   workflow_dispatch: {}
