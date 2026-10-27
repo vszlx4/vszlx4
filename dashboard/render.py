@@ -76,6 +76,13 @@ class D(ch.Svg):
         self.tx(x0 + w / 2, y + 15, label, 11, tone or T['text2'], 500, 'middle')
         return w
 
+    def tag(self, x, y, label, tone=None, width=56):
+        """Fixed-width status tag with square corners, so a column of them stacks evenly."""
+        fill = tone or T['text2']
+        self.el('rect', x=x, y=y, width=width, height=20, rx=2, fill=fill, fill_opacity=0.12 if tone else 0.07,
+                stroke=fill, stroke_opacity=0.3 if tone else 0.18)
+        self.tx(x + width / 2, y + 14, label, 11, tone or T['text2'], 500, 'middle')
+
     def legend(self, x_right, y, items):
         x = x_right
         for label, color, dashed in reversed(items):
@@ -306,8 +313,8 @@ def draw(m):
     if done_n:
         s.el('path', d=_arc(cx, cy, r, a0, a0 + (a1 - a0) * rate), fill='none', stroke=T['green'] if rate >= 0.9 else T['amber'],
              stroke_width=8, stroke_linecap='round')
-    s.tx(cx, cy + 4, ch.fmt_pct(rate, 1) if done_n else '-', 15, T['text'], 600, 'middle')
-    s.tx(cx, cy + 36, 'success rate', 10.5, T['muted'], anchor='middle')
+    s.tx(cx, cy + 2, ch.fmt_pct(rate, 1) if done_n else '-', 15, T['text'], 600, 'middle')
+    s.tx(cx, cy + 17, 'success rate', 9.5, T['muted'], anchor='middle')  # inside the ring, clear of the arc ends
     # every row has the same dot column, so labels and dots line up whether or not a row has a dot
     rx0, rx1 = x + P + 108, x + w - P
     for i, (lab, val, c) in enumerate((('Succeeded', ch.fmt_int(runs['success']), T['green']),
@@ -324,15 +331,17 @@ def draw(m):
     status = [
         ('Latest run', ('Succeeded' if last[1] == 'success' else 'Failed') + ', ' + day(last[0].astimezone(now.tzinfo))
          if last else 'None', T['green'] if last and last[1] == 'success' else T['red'] if last else None, None),
-        ('Reporting period', '{} - {}'.format(m['first'].strftime('%b %Y'), now.strftime('%b %Y')), None, None),
-        ('Last updated', '{} {}'.format(stamp(now), m['tz_label']), T['green'], 'stamp'),
+        ('Period', '{} - {}'.format(m['first'].strftime('%b %Y'), now.strftime('%b %Y')), None, None),
+        ('Updated', stamp(now), T['green'], 'stamp'),
     ]
+    # three fixed columns: label, status dot, left-aligned value
+    dot_x, val_x = x + P + 86, x + P + 98
     for i, (lab, val, c, cls) in enumerate(status):
         ry = y + 206 + i * 24
+        s.tx(x + P, ry, lab, 12, T['muted'])
         if c:
-            s.el('circle', cx=x + P + 4, cy=ry - 4, r=3.5, fill=c)
-        s.tx(x + P + 14, ry, lab, 12, T['muted'])
-        s.tx(x + w - P, ry, val, 12, T['text'], anchor='end', cls=cls)
+            s.el('circle', cx=dot_x, cy=ry - 4, r=3.5, fill=c)
+        s.tx(val_x, ry, val, 12, T['text'], cls=cls)
 
     # ---------------------------------------------------------------- repositories
     y = 688
@@ -355,10 +364,10 @@ def draw(m):
         if i:
             s.hline(x + P, x + w - P, ry - 19, T['grid'])
         idle = (now - r_['last']).days
-        status, tone = ('Active', T['green']) if idle <= 14 else ('Idle', T['amber']) if idle <= 60 else ('Inactive', None)
+        status, tone = ('Active', T['green']) if idle <= 30 else ('Stable', None)  # Stable: no changes in 30+ days
         name = r_['name'] if len(r_['name']) <= 15 else r_['name'][:14] + '…'
         s.tx(X['name'], ry, name, 12, T['text2'] if r_.get('private') else T['text'], None if r_.get('private') else 500)
-        s.pill(X['status'], ry - 15, status, tone)
+        s.tag(X['status'], ry - 14, status, tone)
         if r_.get('language'):
             s.el('circle', cx=X['lang'] + 4, cy=ry - 4, r=4, fill=LANG.get(r_['language'], LANG['Other']))
             s.tx(X['lang'] + 14, ry, r_['language'], 12, T['text2'])
