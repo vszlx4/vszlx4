@@ -325,7 +325,7 @@ def draw(m):
         s.tx(rx0 + (13 if c else 0), ry, lab, 12, T['text2'])
         s.tx(rx1, ry, val, 12, T['text'], 500, 'end')
     s.hline(x + P, x + w - P, y + 180, T['line'])
-    last = max(ci_runs, key=lambda t: t[0]) if ci_runs else None
+    last = max(done_runs, key=lambda t: t[0]) if done_runs else None  # latest run that passed or failed
     status = [
         ('Last run', ('Passed' if last[1] == 'success' else 'Failed' if last[1] == 'failure' else 'Skipped') + ', ' + ago(now, last[0])
          if last else 'None', T['green'] if last and last[1] == 'success' else T['red'] if last and last[1] == 'failure' else None),
