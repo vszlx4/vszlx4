@@ -118,9 +118,9 @@
 <text x="564" y="552" font-size="11" fill="#737373" text-anchor="end">Last Run</text>
 <text x="44" y="580" font-size="12" fill="#ededed" font-weight="500">README build</text>
 <text x="214" y="580" font-size="12" fill="#a1a1a1">vszlx4</text>
-<text x="324" y="580" font-size="12" fill="#ededed" text-anchor="end">87</text>
+<text x="324" y="580" font-size="12" fill="#ededed" text-anchor="end">86</text>
 <rect x="342" y="572" width="60" height="6" rx="3" fill="#2b2b2b"/>
-<rect x="342" y="572" width="59.31" height="6" rx="3" fill="#3fb950"/>
+<rect x="342" y="572" width="59.3" height="6" rx="3" fill="#3fb950"/>
 <text x="444" y="580" font-size="12" fill="#a1a1a1" text-anchor="end">99%</text>
 <text x="492" y="580" font-size="12" fill="#a1a1a1" text-anchor="end">25s</text>
 <text x="564" y="580" font-size="12" fill="#a1a1a1" text-anchor="end">8h ago</text>
@@ -175,11 +175,12 @@
 <text x="852" y="544" font-size="12" fill="#ededed" font-weight="500" text-anchor="end">25s</text>
 <line x1="620" y1="572.5" x2="852" y2="572.5" stroke="#1f1f1f"/>
 <text x="620" y="598" font-size="12" fill="#737373">Last run</text>
-<text x="852" y="598" font-size="12" fill="#ededed" text-anchor="end">Skipped, 2m ago</text>
+<text x="852" y="598" font-size="12" fill="#ededed" text-anchor="end">Passed, 4m ago</text>
+<circle cx="747.92" cy="594" r="3.5" fill="#3fb950"/>
 <text x="620" y="622" font-size="12" fill="#737373">Data from</text>
 <text x="852" y="622" font-size="12" fill="#ededed" text-anchor="end">Dec 2025 - Oct 2026</text>
 <text x="620" y="646" font-size="12" fill="#737373">Updated</text>
-<text x="852" y="646" font-size="12" fill="#ededed" text-anchor="end">27 Oct 2026, 21:15 UTC+3</text>
+<text x="852" y="646" font-size="12" fill="#ededed" text-anchor="end">27 Oct 2026, 21:17 UTC+3</text>
 <circle cx="680.72" cy="642" r="3.5" fill="#3fb950"/>
 <rect x="24.5" y="688.5" width="559" height="287" rx="16" fill="#121212" stroke="#1f1f1f"/>
 <text x="44" y="720" font-size="14" fill="#ededed" font-weight="600">Repositories</text>
