@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "17 3 * * *"
+    - cron: "7 * * * *"  # hourly
   workflow_dispatch: {}
 
 permissions:
@@ -21,16 +21,16 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Check out
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
       # File lists of past commits never change, so they are kept between runs instead of refetched.
       - name: Restore commit cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: .cache/commit-files.json
           key: commit-files-${{ github.run_id }}

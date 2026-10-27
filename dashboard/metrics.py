@@ -124,12 +124,40 @@ def build(data_dir, now=None):
         weekly[(c['dt'].date() - wk0).days // 7] += 1
     m['weekly'] = [(wk0 + timedelta(weeks=i), v) for i, v in enumerate(weekly)]
 
-    # ---- last 30 days against the average 30-day window
-    recent = [c for c in commits if c['dt'] >= now - timedelta(days=30)]
-    windows = max(1, t['span_days'] / 30)
-    m['momentum'] = dict(
-        last=dict(commits=len(recent), changed=sum(c['add'] + c['del'] for c in recent), days=len({c['dt'].date() for c in recent})),
-        avg=dict(commits=t['commits'] / windows, changed=t['changed'] / windows, days=t['active_days'] / windows))
+    # ---- last 30 days against the 30 days before them, day by day (oldest first, today last)
+    today = now.date()
+    by_day = Counter(c['dt'].date() for c in commits)
+    m['days_last'] = [(today - timedelta(days=29 - i), by_day[today - timedelta(days=29 - i)]) for i in range(30)]
+    m['days_prev'] = [(today - timedelta(days=59 - i), by_day[today - timedelta(days=59 - i)]) for i in range(30)]
+
+    def window(start, end):
+        cs = [c for c in commits if start <= c['dt'].date() <= end]
+        return dict(commits=len(cs), changed=sum(c['add'] + c['del'] for c in cs), days=len({c['dt'].date() for c in cs}))
+    m['momentum'] = dict(last=window(today - timedelta(days=29), today), prev=window(today - timedelta(days=59), today - timedelta(days=30)))
+
+    # ---- records: streaks, busiest day and month, most active weekday, peak hour
+    active = sorted(by_day)
+    longest, run_start, best = (None, None, 0), None, 0
+    for i, d in enumerate(active):
+        run_start = d if i == 0 or (d - active[i - 1]).days > 1 else run_start
+        length = (d - run_start).days + 1
+        if length > best:
+            best, longest = length, (run_start, d, length)
+    current, d = 0, today if today in by_day else today - timedelta(days=1)  # a streak survives until a full day is missed
+    while d in by_day:
+        current, d = current + 1, d - timedelta(days=1)
+    busiest_day = max(by_day.items(), key=lambda kv: (kv[1], kv[0])) if by_day else None
+    busiest_month = max(m['periods'], key=lambda p: p['commits']) if commits else None
+    weekdays = Counter(c['dt'].weekday() for c in commits)
+    hours = Counter(c['dt'].hour for c in commits)
+    m['records'] = dict(
+        current_streak=current, current_since=d + timedelta(days=1) if current else None, last_active=active[-1] if active else None,
+        longest=longest,
+        busiest_day=busiest_day, busiest_month=busiest_month,
+        weekday=weekdays.most_common(1)[0] if weekdays else None, hour=hours.most_common(1)[0] if hours else None)
+
+    user = _load(os.path.join(data_dir, 'user.json'), {}) or {}
+    m['joined'] = _time(user['created_at']) if user.get('created_at') else None
 
     # ---- repositories: public ones by name, private ones pooled
     rows = []

@@ -103,7 +103,9 @@ def collect(token, login, out_dir, files_cache):
     except (FileNotFoundError, json.JSONDecodeError):
         cache = {}
 
-    user_id = gh.graphql('query($l: String!) { user(login: $l) { id } }', {'l': login})['user']['id']
+    user = gh.graphql('query($l: String!) { user(login: $l) { id createdAt } }', {'l': login})['user']
+    user_id = user['id']
+    _dump(os.path.join(out_dir, 'user.json'), {'login': login, 'created_at': user['createdAt']})
     repos = [r for r in gh.pages('/user/repos?affiliation=owner,collaborator,organization_member&per_page=100') if not r.get('fork')]
     _dump(os.path.join(out_dir, 'repos.json'), repos)
     print('{} repositories'.format(len(repos)), flush=True)
@@ -155,7 +157,9 @@ def collect(token, login, out_dir, files_cache):
         if r.get('private') or r['owner']['login'].lower() != login.lower() or r['name'] not in mine:
             continue
         full, name = r['full_name'], r['name']
-        _dump(os.path.join(out_dir, 'runs_{}.json'.format(name)), gh.rest('/repos/{}/actions/runs?per_page=100'.format(full)) or {})
+        # The profile repository's own hourly dashboard job is not CI, so its runs are left out.
+        runs = {} if name.lower() == login.lower() else gh.rest('/repos/{}/actions/runs?per_page=100'.format(full)) or {}
+        _dump(os.path.join(out_dir, 'runs_{}.json'.format(name)), runs)
         _dump(os.path.join(out_dir, 'iss_{}.json'.format(name)), gh.rest('/repos/{}/issues?state=all&per_page=100'.format(full)) or [])
         tree = gh.rest('/repos/{}/git/trees/{}?recursive=1'.format(full, urllib.parse.quote(r.get('default_branch') or 'main'))) or {}
         tests[name] = sum(1 for t in tree.get('tree', []) if t.get('type') == 'blob' and TEST_PATH.search(t['path']))
