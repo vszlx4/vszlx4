@@ -1,0 +1,6 @@
+# Fetched API data and the commit cache hold private repository names: never commit them.
+.cache/
+__pycache__/
+*.svg.tmp
+# Design explorations, kept locally
+samples/
