@@ -2,5 +2,3 @@
 .cache/
 __pycache__/
 *.svg.tmp
-# Design explorations, kept locally
-samples/

@@ -103,8 +103,6 @@ def collect(token, login, out_dir, files_cache):
     except (FileNotFoundError, json.JSONDecodeError):
         cache = {}
 
-    user = gh.rest('/users/{}'.format(login))
-    _dump(os.path.join(out_dir, 'user.json'), user)
     user_id = gh.graphql('query($l: String!) { user(login: $l) { id } }', {'l': login})['user']['id']
     repos = [r for r in gh.pages('/user/repos?affiliation=owner,collaborator,organization_member&per_page=100') if not r.get('fork')]
     _dump(os.path.join(out_dir, 'repos.json'), repos)
@@ -150,7 +148,7 @@ def collect(token, login, out_dir, files_cache):
     if budget <= 0:
         print('File-list budget reached; remaining commits are fetched on the next run.', flush=True)
 
-    # Actions, releases, issues/PRs, root files and test files for owned public repositories with commits
+    # Actions runs, issues/PRs and test files for owned public repositories with commits
     mine = {c['repo'] for c in commits}
     tests = {}
     for r in repos:
@@ -158,9 +156,7 @@ def collect(token, login, out_dir, files_cache):
             continue
         full, name = r['full_name'], r['name']
         _dump(os.path.join(out_dir, 'runs_{}.json'.format(name)), gh.rest('/repos/{}/actions/runs?per_page=100'.format(full)) or {})
-        _dump(os.path.join(out_dir, 'rel_{}.json'.format(name)), gh.rest('/repos/{}/releases?per_page=100'.format(full)) or [])
         _dump(os.path.join(out_dir, 'iss_{}.json'.format(name)), gh.rest('/repos/{}/issues?state=all&per_page=100'.format(full)) or [])
-        _dump(os.path.join(out_dir, 'root_{}.json'.format(name)), gh.rest('/repos/{}/contents/'.format(full)) or [])
         tree = gh.rest('/repos/{}/git/trees/{}?recursive=1'.format(full, urllib.parse.quote(r.get('default_branch') or 'main'))) or {}
         tests[name] = sum(1 for t in tree.get('tree', []) if t.get('type') == 'blob' and TEST_PATH.search(t['path']))
     _dump(os.path.join(out_dir, 'tests.json'), tests)

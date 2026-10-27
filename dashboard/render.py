@@ -2,8 +2,9 @@
 Draws the dashboard SVG (dark) from the numbers in metrics.build().
 
 Layout: 12 columns of 56px with 16px gutters and 24px margins (896px wide). Cards use 16px corners and 20px padding.
-The interface is monochrome and brightness marks emphasis. Green, red and amber carry meaning only
-(added/removed, pass/fail, activity status); language hues identify languages and nothing else.
+Two themes follow GitHub's own dark and light palettes. The interface is monochrome and brightness marks emphasis;
+green, red and amber carry meaning only (added, pass/fail, activity status). Language and commit-type hues identify
+a language or a type of change and nothing else.
 """
 import math
 from datetime import datetime, timedelta
@@ -17,13 +18,27 @@ P = 20  # card padding
 R = 16  # card radius; inner elements use 8
 
 SANS = "'Geist','SF Pro Text','Segoe UI Variable Text','Segoe UI',system-ui,sans-serif"
-T = dict(
-    bg='#0a0a0a', card='#121212', line='#1f1f1f', inset='#181818', grid='#1c1c1c',
-    text='#ededed', text2='#a1a1a1', muted='#737373', faint='#2b2b2b', mid='#525252',
-    green='#3fb950', red='#f85149', amber='#d29922',
-)
-LANG = {'Python': '#f5d547', 'Svelte': '#f0661f', 'TypeScript': '#4a8fe0', 'HTML': '#cc2f5a', 'CSS': '#c4a1ff',
-        'JavaScript': '#e8c547', 'Go': '#3fc1d9', 'Rust': '#d9875a', 'Shell': '#89e051', 'Other': '#525252'}
+THEMES = {
+    'dark': dict(  # GitHub dark: canvas #0d1117, overlays #161b22, borders #30363d
+        bg='#0d1117', card='#161b22', line='#30363d', inset='#0d1117', grid='#21262d',
+        text='#e6edf3', text2='#9198a1', muted='#7d8590', faint='#21262d', mid='#6e7681', dim='#3d444d',
+        green='#3fb950', red='#f85149', amber='#d29922',
+        lang={'Python': '#f5d547', 'Svelte': '#f0661f', 'TypeScript': '#4a8fe0', 'HTML': '#cc2f5a', 'CSS': '#c4a1ff',
+              'JavaScript': '#e8c547', 'Go': '#3fc1d9', 'Rust': '#d9875a', 'Shell': '#89e051', 'Other': '#6e7681'},
+        types={'Feature': '#3fb950', 'Fix': '#4493f8', 'Refactor': '#f0883e', 'Test': '#ab7df8', 'Docs': '#39c5cf',
+               'Maintenance': '#6e7681'},
+    ),
+    'light': dict(  # GitHub light: canvas #ffffff, muted surfaces #f6f8fa, borders #d1d9e0
+        bg='#ffffff', card='#f6f8fa', line='#d1d9e0', inset='#ffffff', grid='#e6eaef',
+        text='#1f2328', text2='#59636e', muted='#6e7781', faint='#e6eaef', mid='#8c959f', dim='#c8d1da',
+        green='#1a7f37', red='#d1242f', amber='#9a6700',
+        lang={'Python': '#9a6700', 'Svelte': '#f0781f', 'TypeScript': '#0969da', 'HTML': '#a0114a', 'CSS': '#c49cf7',
+              'JavaScript': '#bf8700', 'Go': '#1b7c83', 'Rust': '#bc4c00', 'Shell': '#4d8a1f', 'Other': '#8c959f'},
+        types={'Feature': '#1a7f37', 'Fix': '#0969da', 'Refactor': '#bc4c00', 'Test': '#8250df', 'Docs': '#1b7c83',
+               'Maintenance': '#8c959f'},
+    ),
+}
+T, LANG, TYPE = THEMES['dark'], THEMES['dark']['lang'], THEMES['dark']['types']
 
 
 def col(i):
@@ -121,7 +136,7 @@ def ago(now, then):
 
 def duration(sec):
     if sec is None:
-        return '—'
+        return '-'
     if sec < 90:
         return '{:.0f}s'.format(sec)
     if sec < 5400:
@@ -129,11 +144,6 @@ def duration(sec):
     if sec < 172800:
         return '{:.1f}h'.format(sec / 3600)
     return '{:.1f}d'.format(sec / 86400)
-
-
-def median(v):
-    v = sorted(x for x in v if x is not None)
-    return v[len(v) // 2] if v else None
 
 
 def draw(m):
@@ -155,7 +165,7 @@ def draw(m):
         ('Commits', ch.fmt_int(tot['commits']), change(mo['last']['commits'], mo['avg']['commits'])),
         ('Lines Changed', ch.fmt_compact(tot['changed']), change(mo['last']['changed'], mo['avg']['changed'])),
         ('Active Days', ch.fmt_int(tot['active_days']), change(mo['last']['days'], mo['avg']['days'])),
-        ('CI Pass Rate', ch.fmt_pct(rate_all, 1) if rate_all is not None else '—',
+        ('CI Pass Rate', ch.fmt_pct(rate_all, 1) if rate_all is not None else '-',
          change(rate_recent, rate_all) if rate_recent is not None and rate_all else ('No change', None)),
     ]
     for i, (label, value, (delta, tone)) in enumerate(kpis):
@@ -190,8 +200,8 @@ def draw(m):
     n = len(vals)
     xs = lambda i: gx0 + (i / (n - 1) if n > 1 else 0.5) * (gx1 - gx0)
     pts = [(xs(i), sc(v)) for i, v in enumerate(vals)]
-    s.o.append('<defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ededed" stop-opacity="0.16"/>'
-               '<stop offset="1" stop-color="#ededed" stop-opacity="0"/></linearGradient></defs>')
+    s.o.append('<defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{c}" stop-opacity="0.16"/>'
+               '<stop offset="1" stop-color="{c}" stop-opacity="0"/></linearGradient></defs>'.format(c=T['text']))
     line = monotone(pts) if n > 1 else ''
     if line:
         s.el('path', d='{} L {:.1f} {:.1f} L {:.1f} {:.1f} Z'.format(line, gx1, gb, gx0, gb), fill='url(#area)')
@@ -250,58 +260,54 @@ def draw(m):
         s.tx(lx0 + 14, ry, l, 12, T['text'])
         s.tx(lx1, ry, ch.fmt_pct(v / grand), 12, T['text2'], anchor='end')
 
-    # ---------------------------------------------------------------- GitHub Actions: workflows, pull requests, tests
+    # ---------------------------------------------------------------- commit types: ranked list + monthly stacked columns
     y, h = 392, 280
     x, w = col(0), span(8)
-    s.card(x, y, w, h, 'GitHub Actions', 'Workflows, pull requests and tests in public repositories')
-    wf = m.get('workflows', {})
-    prs = m.get('prs', [])
-    merged = [p for p in prs if p['merged']]
-    open_prs = [p for p in prs if p['state'] == 'open']
-    ttm = median([(p['merged'] - p['created']).total_seconds() for p in merged])
-    tests = m.get('tests', {})
-    stats = [
-        ('Workflow runs', ch.fmt_int(sum(len(v) for v in wf.values())), '{} workflows'.format(len(wf))),
-        ('Pull requests', ch.fmt_int(len(prs)), '{} merged, {} open'.format(len(merged), len(open_prs))),
-        ('Time to merge', duration(ttm), 'median, merged PRs'),
-        ('Test files', ch.fmt_int(tests.get('files', 0)), 'in {} of {} repos'.format(tests.get('repos', 0), tests.get('of', 0))),
-    ]
-    cw = (w - 2 * P) / len(stats)
-    for i, (lab, val, sub) in enumerate(stats):
-        sx = x + P + i * cw
-        if i:
-            s.vline(sx - 10, y + 66, y + 122, T['line'])
-        s.tx(sx, y + 78, lab, 11, T['muted'])
-        s.tx(sx, y + 102, val, 20, T['text'], 600)
-        s.tx(sx, y + 118, sub, 10.5, T['muted'])
-    s.hline(x + P, x + w - P, y + 138, T['line'])
-    X = dict(wf=x + P, repo=x + 190, runs=x + 300, bar0=x + 318, bar1=x + 378, rate=x + 420, med=x + 468, last=x + w - P)
-    hy = y + 160
-    for k, lab, anc in (('wf', 'Workflow', None), ('repo', 'Repository', None), ('runs', 'Runs', 'end'), ('bar0', 'Success', None),
-                        ('med', 'Median', 'end'), ('last', 'Last Run', 'end')):
-        s.tx(X[k], hy, lab, 11, T['muted'], anchor=anc)
-    rows = sorted(wf.items(), key=lambda kv: -len(kv[1]))[:4]
-    if not rows:
-        s.tx(X['wf'], hy + 30, 'No workflow runs in public repositories yet.', 12, T['muted'])
-    for i, ((repo, name), rs) in enumerate(rows):
-        ry = hy + 28 + i * 26
-        if i:
-            s.hline(x + P, x + w - P, ry - 17, T['grid'])
-        done = [c for _, c, _ in rs if c in ('success', 'failure')]
-        rate = done.count('success') / len(done) if done else None
-        s.tx(X['wf'], ry, name if len(name) <= 24 else name[:23] + '…', 12, T['text'], 500)
-        s.tx(X['repo'], ry, repo, 12, T['text2'])
-        s.tx(X['runs'], ry, ch.fmt_int(len(rs)), 12, T['text'], anchor='end')
-        s.rect(X['bar0'], ry - 8, X['bar1'] - X['bar0'], 6, T['faint'], rx=3)
-        if rate is not None:
-            s.rect(X['bar0'], ry - 8, max(3, (X['bar1'] - X['bar0']) * rate), 6, T['green'] if rate >= 0.9 else T['amber'], rx=3)
-        s.tx(X['rate'], ry, '—' if rate is None else ch.fmt_pct(rate), 12, T['text2'], anchor='end')
-        s.tx(X['med'], ry, duration(median([d for _, c, d in rs if c in ('success', 'failure')])), 12, T['text2'], anchor='end')
-        last_d, last_c, _ = max(rs, key=lambda t: t[0])
-        lab = ago(now, last_d)
-        s.tx(X['last'], ry, lab, 12, T['text2'], anchor='end')
-        s.el('circle', cx=X['last'] - tw(lab, 12) - 10, cy=ry - 4, r=3.5,
-             fill=T['green'] if last_c == 'success' else T['red'] if last_c == 'failure' else T['mid'])
+    types = m['types']
+    total_t = sum(types.values()) or 1
+    s.card(x, y, w, h, 'Commit Types', 'Classified from commit messages')
+    lx0, lx1 = x + P, x + P + 196
+    ranked = sorted((t_ for t_ in metrics.TYPES if types.get(t_)), key=lambda k: -types[k])
+    top_n = max(types.values()) if types else 1
+    for i, t_ in enumerate(ranked):
+        ry = y + 84 + i * 30
+        s.rect(lx0, ry - 9, 10, 10, TYPE[t_], rx=3)
+        s.tx(lx0 + 18, ry, t_, 12.5, T['text'], 500)
+        s.tx(lx1 - 44, ry, ch.fmt_int(types[t_]), 12.5, T['text'], 600, 'end')
+        s.tx(lx1, ry, ch.fmt_pct(types[t_] / total_t), 12, T['muted'], anchor='end')
+        s.rect(lx0 + 18, ry + 7, (lx1 - lx0 - 18) * types[t_] / top_n, 3, TYPE[t_], rx=1.5)
+    s.vline(lx1 + 20, y + 72, y + h - 20, T['line'])
+    periods = m['periods']
+    gx0, gx1, gt, gb = lx1 + 64, x + w - P, y + 80, y + h - 44
+    ticks = ch.nice_ticks(max([p['commits'] for p in periods] + [1]), 3)
+    sc = ch.Linear(0, ticks[-1], gb, gt)
+    for v in ticks:
+        s.hline(gx0, gx1, sc(v), T['grid'], dash=None if v == 0 else '2 4')
+        s.tx(gx0 - 8, sc(v) + 4, ch.fmt_int(v), 10.5, T['muted'], anchor='end')
+    band = (gx1 - gx0) / len(periods)
+    bw = max(2, min(22, band * 0.62))
+    for i, p in enumerate(periods):
+        cx = gx0 + band * (i + 0.5)
+        acc = 0
+        for t_ in metrics.TYPES:  # Feature at the bottom, same order as the palette
+            v = p['types'].get(t_, 0)
+            if not v:
+                continue
+            y_top, y_bot = sc(acc + v), sc(acc)
+            s.rect(cx - bw / 2, y_top, bw, max(1, y_bot - y_top - (1.5 if acc else 0)), TYPE[t_], rx=2)
+            acc += v
+        if not p['commits']:
+            s.rect(cx - bw / 2, gb - 2, bw, 2, T['faint'], rx=1)
+    long_span = len(periods) > 24
+    last_x = -1e9
+    for i, p in enumerate(periods):
+        if long_span and not (i == 0 or p['key'][1] == 1):
+            continue
+        cx = gx0 + band * (i + 0.5)
+        if cx - last_x < 30:
+            continue
+        s.tx(cx, gb + 22, str(p['year']) if long_span else p['label'], 10.5, T['muted'], anchor='middle')
+        last_x = cx
 
     # ---------------------------------------------------------------- CI health, with data status
     x, w = col(8), span(4)
@@ -314,7 +320,7 @@ def draw(m):
     if done_n:
         s.el('path', d=_arc(cx, cy, r, a0, a0 + (a1 - a0) * rate), fill='none', stroke=T['green'] if rate >= 0.9 else T['amber'],
              stroke_width=8, stroke_linecap='round')
-    s.tx(cx, cy + 4, ch.fmt_pct(rate, 1) if done_n else '—', 15, T['text'], 600, 'middle')
+    s.tx(cx, cy + 4, ch.fmt_pct(rate, 1) if done_n else '-', 15, T['text'], 600, 'middle')
     s.tx(cx, cy + 36, 'pass rate', 10.5, T['muted'], anchor='middle')
     rx0, rx1 = x + P + 108, x + w - P
     for i, (lab, val, c) in enumerate((('Passed', ch.fmt_int(runs['success']), T['green']), ('Failed', ch.fmt_int(runs['failure']), T['red']),
@@ -348,10 +354,11 @@ def draw(m):
     h = max(288, 96 + len(rows) * 30 + 8)
     x, w = col(0), span(8)
     s.card(x, y, w, h, 'Repositories', 'Ranked by commits')
-    X = dict(name=x + P, status=x + 140, lang=x + 214, commits=x + 336, added=x + 398, removed=x + 456, last=x + w - P)
+    X = dict(name=x + P, status=x + 140, lang=x + 214, commits=x + 330, added=x + 392, prs=x + 434, tests=x + 480, last=x + w - P)
     hy = y + 80
     for k, lab, anc in (('name', 'Repository', None), ('status', 'Status', None), ('lang', 'Language', None),
-                        ('commits', 'Commits', 'end'), ('added', 'Added', 'end'), ('removed', 'Removed', 'end'), ('last', 'Last Commit', 'end')):
+                        ('commits', 'Commits', 'end'), ('added', 'Lines', 'end'), ('prs', 'PRs', 'end'), ('tests', 'Tests', 'end'),
+                        ('last', 'Last Commit', 'end')):
         s.tx(X[k], hy, lab, 11, T['muted'], anchor=anc)
     s.hline(x + P, x + w - P, hy + 10, T['line'])
     for i, r in enumerate(rows):
@@ -370,15 +377,16 @@ def draw(m):
             s.tx(X['lang'], ry, 'Mixed', 12, T['muted'])
         s.tx(X['commits'], ry, ch.fmt_int(r['commits']), 12, T['text'], 500, 'end')
         s.tx(X['added'], ry, '+' + ch.fmt_compact(r['added']), 12, T['green'], anchor='end')
-        s.tx(X['removed'], ry, ch.fmt_compact(-r['removed']), 12, T['red'], anchor='end')
+        merged = None if r.get('private') else sum(1 for p_ in m.get('prs', []) if p_['repo'] == r['name'] and p_['merged'])
+        for key, v in (('prs', merged), ('tests', None if r.get('private') else r.get('test_files'))):
+            s.tx(X[key], ry, '-' if v is None else ch.fmt_int(v), 12, T['muted'] if v is None else T['text2'], anchor='end')
         s.tx(X['last'], ry, 'Today' if days == 0 else '{}d ago'.format(days), 12, T['text2'], anchor='end')
 
     # ---------------------------------------------------------------- commit size: figures + histogram
     x, w = col(8), span(4)
     s.card(x, y, w, h, 'Commit Size', 'Lines changed per commit')
-    all_sizes = [v for vs in m['size_by_repo'].values() for v in vs]
     figs = [('Median', ch.fmt_int(tot['median_size'])), ('90th pct.', ch.fmt_compact(tot['p90_size'])),
-            ('Largest', ch.fmt_compact(max(all_sizes) if all_sizes else 0))]
+            ('Largest', ch.fmt_compact(tot['largest']))]
     cw = (w - 2 * P) / 3
     for i, (lab, val) in enumerate(figs):
         fx = x + P + i * cw
@@ -397,7 +405,7 @@ def draw(m):
     for i, (lab, v) in enumerate(sizes):
         cxb = gx0 + band * (i + 0.5)
         hh = max(2, (gb - gt) * v / mx) if v else 2
-        s.rect(cxb - 11, gb - hh, 22, hh, T['text'] if i == med_i else '#3a3a3a' if v else T['faint'], rx=3)
+        s.rect(cxb - 11, gb - hh, 22, hh, T['text'] if i == med_i else T['dim'] if v else T['faint'], rx=3)
         s.tx(cxb, gb - hh - 7, ch.fmt_int(v), 11, T['text'] if i == med_i else T['text2'], 600 if i == med_i else None, 'middle')
         s.tx(cxb, gb + 20, lab, 10.5, T['muted'], anchor='middle')
 
@@ -413,6 +421,8 @@ def _arc(cx, cy, r, a0, a1):
     return 'M {:.2f} {:.2f} A {} {} 0 {} 1 {:.2f} {:.2f}'.format(x0, y0, r, r, 1 if a1 - a0 > math.pi else 0, x1, y1)
 
 
-def render(m):
+def render(m, theme='dark'):
+    global T, LANG, TYPE
+    T, LANG, TYPE = THEMES[theme], THEMES[theme]['lang'], THEMES[theme]['types']
     svg = draw(m).render('Development activity dashboard')
-    return svg.replace('role="img"', 'role="img" style="color-scheme:dark"', 1)
+    return svg.replace('role="img"', 'role="img" style="color-scheme:{}"'.format(theme), 1)
