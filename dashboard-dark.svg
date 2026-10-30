@@ -178,20 +178,20 @@
 <text x="620" y="424" font-size="14" fill="#e6edf3" font-weight="600">Continuous Integration</text>
 <text x="620" y="442" font-size="11.5" fill="#7d8590">Workflow runs in public repositories</text>
 <path d="M 637.72 534.28 A 40 40 0 1 1 694.28 534.28" fill="none" stroke="#21262d" stroke-width="8" stroke-linecap="round"/>
-<path d="M 637.72 534.28 A 40 40 0 1 1 697.09 531.17" fill="none" stroke="#3fb950" stroke-width="8" stroke-linecap="round"/>
-<text x="666" y="508" font-size="15" fill="#e6edf3" font-weight="600" text-anchor="middle">97.8%</text>
+<path d="M 637.72 534.28 A 40 40 0 1 1 698.26 529.65" fill="none" stroke="#3fb950" stroke-width="8" stroke-linecap="round"/>
+<text x="666" y="508" font-size="15" fill="#e6edf3" font-weight="600" text-anchor="middle">96.8%</text>
 <text x="666" y="523" font-size="9.5" fill="#7d8590" text-anchor="middle">success rate</text>
 <circle cx="732" cy="474" r="3.5" fill="#3fb950"/>
 <text x="742" y="478" font-size="12" fill="#9198a1">Succeeded</text>
-<text x="852" y="478" font-size="12" fill="#e6edf3" font-weight="500" text-anchor="end">176</text>
+<text x="852" y="478" font-size="12" fill="#e6edf3" font-weight="500" text-anchor="end">179</text>
 <circle cx="732" cy="496" r="3.5" fill="#f85149"/>
 <text x="742" y="500" font-size="12" fill="#9198a1">Failed</text>
-<text x="852" y="500" font-size="12" fill="#e6edf3" font-weight="500" text-anchor="end">4</text>
+<text x="852" y="500" font-size="12" fill="#e6edf3" font-weight="500" text-anchor="end">6</text>
 <circle cx="732" cy="518" r="3.5" fill="#6e7681"/>
 <text x="742" y="522" font-size="12" fill="#9198a1">Skipped</text>
 <text x="852" y="522" font-size="12" fill="#e6edf3" font-weight="500" text-anchor="end">11</text>
 <text x="742" y="544" font-size="12" fill="#9198a1">Median time</text>
-<text x="852" y="544" font-size="12" fill="#e6edf3" font-weight="500" text-anchor="end">17s</text>
+<text x="852" y="544" font-size="12" fill="#e6edf3" font-weight="500" text-anchor="end">16s</text>
 <line x1="620" y1="572.5" x2="852" y2="572.5" stroke="#30363d"/>
 <text x="620" y="598" font-size="12" fill="#7d8590">Latest run</text>
 <circle cx="706" cy="594" r="3.5" fill="#f85149"/>
@@ -200,7 +200,7 @@
 <text x="718" y="622" font-size="12" fill="#e6edf3">Dec 2025 - Oct 2026</text>
 <text x="620" y="646" font-size="12" fill="#7d8590">Updated</text>
 <circle cx="706" cy="642" r="3.5" fill="#3fb950"/>
-<text x="718" y="646" font-size="12" fill="#e6edf3" class="stamp">30 Oct 2026, 12:07</text>
+<text x="718" y="646" font-size="12" fill="#e6edf3" class="stamp">30 Oct 2026, 22:10</text>
 <rect x="24.5" y="688.5" width="559" height="287" rx="16" fill="#161b22" stroke="#30363d"/>
 <text x="44" y="720" font-size="14" fill="#e6edf3" font-weight="600">Repositories</text>
 <text x="44" y="738" font-size="11.5" fill="#7d8590">Ranked by commit count</text>
