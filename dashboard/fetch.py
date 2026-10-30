@@ -17,6 +17,9 @@ import urllib.request
 API = 'https://api.github.com'
 TEST_PATH = re.compile(r'(^|/)(tests?|e2e|__tests__)/|(_test|\.test|\.spec)\.\w+$|(^|/)test_\w+\.py$')
 FILES_PER_RUN = 1500  # REST budget for uncached commits in one run; the rest are fetched next run
+MAX_RUN_PAGES = 10  # Actions runs per repository: the newest 1,000 at most
+PAGE_FILES = 300  # GitHub lists at most this many files per page of a commit
+CACHE_VERSION = 2  # 2: file lists span every page of a commit
 
 HISTORY = '''
 query($owner: String!, $name: String!, $id: ID!, $cursor: String) {
@@ -33,6 +36,11 @@ query($owner: String!, $name: String!, $id: ID!, $cursor: String) {
     }
   }
 }'''
+
+
+def _next(headers):
+    m = re.search(r'<([^>]+)>;\s*rel="next"', (headers or {}).get('Link') or '')
+    return m.group(1) if m else None
 
 
 def redact(url):
@@ -73,13 +81,13 @@ class GitHub:
     def rest(self, path):
         return self._request(path if path.startswith('http') else API + path)[0]
 
-    def pages(self, path):
-        url, out = API + path, []
-        while url:
+    def pages(self, path, key=None, limit=None):
+        """Every page of a list endpoint; `key` names the list inside an object response (Actions runs, commit files)."""
+        url, out, n = API + path, [], 0
+        while url and (limit is None or n < limit):
             data, headers = self._request(url)
-            out += data or []
-            m = re.search(r'<([^>]+)>;\s*rel="next"', headers.get('Link') or '')
-            url = m.group(1) if m else None
+            out += ((data or {}).get(key) if key else data) or []
+            url, n = _next(headers), n + 1
         return out
 
     def graphql(self, query, variables):
@@ -99,9 +107,13 @@ def collect(token, login, out_dir, files_cache):
     gh = GitHub(token)
     try:
         with open(files_cache, encoding='utf-8') as f:
-            cache = json.load(f)
+            stored = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
-        cache = {}
+        stored = {}
+    if stored.get('version') == CACHE_VERSION:
+        cache = stored['files']
+    else:  # version 1 was a bare map that stopped at the first page of files: refetch lists that filled it
+        cache = {k: v for k, v in stored.items() if len(v) != PAGE_FILES}
 
     user = gh.graphql('query($l: String!) { user(login: $l) { id createdAt } }', {'l': login})['user']
     user_id = user['id']
@@ -128,14 +140,15 @@ def collect(token, login, out_dir, files_cache):
                 if c['parents']['totalCount'] > 1:
                     continue  # merge commits repeat work already counted
                 oid = c['oid']
+                if oid in cache and not cache[oid] and c['additions'] + c['deletions']:
+                    del cache[oid]  # a failed lookup, not an empty commit
                 if oid not in cache and budget > 0:
-                    try:
-                        detail = gh.rest('/repos/{}/commits/{}'.format(r['full_name'], oid)) or {}
-                    except RuntimeError as e:
-                        print('  commit details unavailable: {}'.format(e), flush=True)
-                        detail = {}
-                    cache[oid] = [[f['filename'], f.get('additions', 0), f.get('deletions', 0)] for f in detail.get('files', [])]
                     budget -= 1
+                    try:
+                        files = gh.pages('/repos/{}/commits/{}'.format(r['full_name'], oid), 'files')
+                        cache[oid] = [[f['filename'], f.get('additions', 0), f.get('deletions', 0)] for f in files]
+                    except RuntimeError as e:  # left uncached, so the next run tries again
+                        print('  commit details unavailable: {}'.format(e), flush=True)
                 commits.append(dict(repo=name, sha=oid, date=c['author']['date'], subject=c['messageHeadline'], signed=False,
                                     additions=c['additions'], deletions=c['deletions'], files=cache.get(oid, [])))
                 n += 1
@@ -146,7 +159,7 @@ def collect(token, login, out_dir, files_cache):
             print('  {}: {} commits'.format('private' if r.get('private') else r['full_name'], n), flush=True)
     _dump(os.path.join(out_dir, 'commits.json'), commits)
     os.makedirs(os.path.dirname(files_cache) or '.', exist_ok=True)
-    _dump(files_cache, cache)
+    _dump(files_cache, {'version': CACHE_VERSION, 'files': cache})
     if budget <= 0:
         print('File-list budget reached; remaining commits are fetched on the next run.', flush=True)
 
@@ -158,9 +171,10 @@ def collect(token, login, out_dir, files_cache):
             continue
         full, name = r['full_name'], r['name']
         # The profile repository's own hourly dashboard job is not CI, so its runs are left out.
-        runs = {} if name.lower() == login.lower() else gh.rest('/repos/{}/actions/runs?per_page=100'.format(full)) or {}
-        _dump(os.path.join(out_dir, 'runs_{}.json'.format(name)), runs)
-        _dump(os.path.join(out_dir, 'iss_{}.json'.format(name)), gh.rest('/repos/{}/issues?state=all&per_page=100'.format(full)) or [])
+        runs = [] if name.lower() == login.lower() else gh.pages(
+            '/repos/{}/actions/runs?per_page=100'.format(full), 'workflow_runs', MAX_RUN_PAGES)
+        _dump(os.path.join(out_dir, 'runs_{}.json'.format(name)), {'workflow_runs': runs})
+        _dump(os.path.join(out_dir, 'iss_{}.json'.format(name)), gh.pages('/repos/{}/issues?state=all&per_page=100'.format(full)))
         tree = gh.rest('/repos/{}/git/trees/{}?recursive=1'.format(full, urllib.parse.quote(r.get('default_branch') or 'main'))) or {}
         tests[name] = sum(1 for t in tree.get('tree', []) if t.get('type') == 'blob' and TEST_PATH.search(t['path']))
     _dump(os.path.join(out_dir, 'tests.json'), tests)

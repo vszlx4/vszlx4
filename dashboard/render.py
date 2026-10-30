@@ -128,7 +128,7 @@ def change(now, base):
     r = now / base - 1
     if abs(r) < 0.005:
         return 'No change', None
-    txt = ('+' if r > 0 else '−') + ('{:.1f}×'.format(now / base) if r >= 1 else '{:.0f}%'.format(abs(r) * 100))
+    txt = '{:.1f}×'.format(now / base) if r >= 1 else ('+' if r > 0 else '−') + '{:.0f}%'.format(abs(r) * 100)  # 12.8×, not +12.8×
     return txt, T['green'] if r > 0 else T['red']
 
 
