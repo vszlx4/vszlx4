@@ -10,7 +10,7 @@ import json
 import os
 import re
 from collections import Counter, defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 EXCLUDE = re.compile(r'(^|/)(package-lock\.json|yarn\.lock|pnpm-lock\.yaml|poetry\.lock|Cargo\.lock|uv\.lock)$'
                      r'|(^|/)meta/\d+_snapshot\.json$|\.min\.(js|css)$|\.map$')
@@ -82,13 +82,14 @@ def build(data_dir, now=None):
         c['dt'] = datetime.fromisoformat(c['date'])
         c['add'], c['del'], c['code'] = _lines(c)
     commits.sort(key=lambda c: c['dt'])
-    now = now or datetime.now(commits[-1]['dt'].tzinfo if commits else None)
+    # "Today" and every date shown follow the usual offset of the commits, not whichever one happened to be last.
+    offsets = Counter(c['dt'].utcoffset() for c in commits)
+    off = offsets.most_common(1)[0][0] if offsets else timedelta(0)
+    now = now or datetime.now(timezone(off))
     first = commits[0]['dt'] if commits else now
     m = {'now': now, 'first': first}
-
-    offsets = Counter(c['dt'].strftime('%z') for c in commits)
-    off = offsets.most_common(1)[0][0] if offsets else '+0000'
-    m['tz_label'] = 'UTC{}{}'.format(off[0], int(off[1:3])) + (':' + off[3:] if off[3:] != '00' else '')
+    mins = int(off.total_seconds()) // 60
+    m['tz_label'] = 'UTC{}{}'.format('-' if mins < 0 else '+', abs(mins) // 60) + (':{:02d}'.format(abs(mins) % 60) if mins % 60 else '')
 
     # ---- totals
     sizes = sorted(c['add'] + c['del'] for c in commits)

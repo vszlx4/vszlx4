@@ -4,21 +4,23 @@ on:
   # The bot's own dashboard commits use GITHUB_TOKEN, which never starts workflows, so no path filter is needed.
   push:
     branches: [main]
+  # GitHub delays or drops scheduled runs under load (hourly crons here fired only every 4-7 hours), so the hourly
+  # cadence comes from the `next` job below; the cron is only a fallback that restarts the chain if it ever breaks.
   schedule:
-    - cron: "7 * * * *"  # hourly
+    - cron: "7 * * * *"
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
-concurrency:
-  group: dashboard-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Queue rather than cancel: a cancelled run could stop halfway through pushing.
+    concurrency:
+      group: dashboard-build
+      cancel-in-progress: false
     steps:
       - name: Check out
         uses: actions/checkout@v7
@@ -49,7 +51,37 @@ jobs:
           git add dashboard-dark.svg dashboard-light.svg
           if git diff --cached --quiet; then
             echo "Dashboard unchanged."
-          else
-            git commit -m "Update dashboard"
-            git push
+            exit 0
           fi
+          git commit -m "Update dashboard"
+          # main may have moved while the dashboard was building; replay the commit on top of it.
+          for attempt in 1 2 3; do
+            git pull --rebase --quiet origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            sleep $((attempt * 5))
+          done
+          exit 1
+
+  # Waits for the next hour and starts the workflow again. A dispatch made with GITHUB_TOKEN does start a run (unlike
+  # a push), and each new run cancels the previous wait, so exactly one chain is ever alive.
+  next:
+    needs: build
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    concurrency:
+      group: dashboard-next
+      cancel-in-progress: true
+    permissions:
+      actions: write
+    steps:
+      - name: Wait for the next hour
+        run: |
+          now=$(date +%s)
+          next=$(( (now / 3600 + 1) * 3600 + 7 * 60 ))  # minute 7 of the next hour
+          echo "Next run at $(date -u -d @"$next" +%H:%M) UTC"
+          sleep $(( next - now ))
+
+      - name: Start the next run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run build.yaml --repo "${{ github.repository }}" --ref "${{ github.ref_name }}"
