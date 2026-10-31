@@ -43,21 +43,21 @@
 <line x1="72" y1="204.5" x2="564" y2="204.5" stroke="#e6eaef" stroke-dasharray="2 4"/>
 <text x="62" y="208" font-size="10.5" fill="#6e7781" text-anchor="end">20</text>
 <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f2328" stop-opacity="0.16"/><stop offset="1" stop-color="#1f2328" stop-opacity="0"/></linearGradient></defs>
-<path d="M 72.0 340.0 C 77.7 340.0 83.3 340.0 89.0 340.0 C 94.6 340.0 100.3 333.2 105.9 333.2 C 111.6 333.2 117.2 340.0 122.9 340.0 C 128.6 340.0 134.2 340.0 139.9 340.0 C 145.5 340.0 151.2 340.0 156.8 340.0 C 162.5 340.0 168.1 340.0 173.8 340.0 C 179.4 340.0 185.1 340.0 190.8 340.0 C 196.4 340.0 202.1 340.0 207.7 340.0 C 213.4 340.0 219.0 340.0 224.7 340.0 C 230.3 340.0 236.0 340.0 241.7 340.0 C 247.3 340.0 253.0 340.0 258.6 333.2 C 264.3 326.4 269.9 292.4 275.6 292.4 C 281.2 292.4 286.9 312.8 292.6 312.8 C 298.2 312.8 303.9 238.0 309.5 238.0 C 315.2 238.0 320.8 274.6 326.5 278.8 C 332.1 283.0 337.8 280.2 343.4 285.6 C 349.1 291.0 354.8 340.0 360.4 340.0 C 366.1 340.0 371.7 340.0 377.4 340.0 C 383.0 340.0 388.7 325.3 394.3 319.6 C 400.0 313.9 405.7 306.0 411.3 306.0 C 417.0 306.0 422.6 340.0 428.3 340.0 C 433.9 340.0 439.6 340.0 445.2 340.0 C 450.9 340.0 456.6 340.0 462.2 340.0 C 467.9 340.0 473.5 340.0 479.2 340.0 C 484.8 340.0 490.5 231.2 496.1 231.2 C 501.8 231.2 507.4 267.5 513.1 285.6 C 518.8 303.7 524.4 340.0 530.1 340.0 C 535.7 340.0 541.4 335.5 547.0 333.2 C 552.7 330.9 558.3 328.7 564.0 326.4 L 564.0 340.0 L 72.0 340.0 Z" fill="url(#area)"/>
+<path d="M 72.0 340.0 C 77.7 337.7 83.3 333.2 89.0 333.2 C 94.6 333.2 100.3 340.0 105.9 340.0 C 111.6 340.0 117.2 340.0 122.9 340.0 C 128.6 340.0 134.2 340.0 139.9 340.0 C 145.5 340.0 151.2 340.0 156.8 340.0 C 162.5 340.0 168.1 340.0 173.8 340.0 C 179.4 340.0 185.1 340.0 190.8 340.0 C 196.4 340.0 202.1 340.0 207.7 340.0 C 213.4 340.0 219.0 340.0 224.7 340.0 C 230.3 340.0 236.0 340.0 241.7 333.2 C 247.3 326.4 253.0 292.4 258.6 292.4 C 264.3 292.4 269.9 312.8 275.6 312.8 C 281.2 312.8 286.9 238.0 292.6 238.0 C 298.2 238.0 303.9 274.6 309.5 278.8 C 315.2 283.0 320.8 280.2 326.5 285.6 C 332.1 291.0 337.8 340.0 343.4 340.0 C 349.1 340.0 354.8 340.0 360.4 340.0 C 366.1 340.0 371.7 325.3 377.4 319.6 C 383.0 313.9 388.7 306.0 394.3 306.0 C 400.0 306.0 405.7 340.0 411.3 340.0 C 417.0 340.0 422.6 340.0 428.3 340.0 C 433.9 340.0 439.6 340.0 445.2 340.0 C 450.9 340.0 456.6 340.0 462.2 340.0 C 467.9 340.0 473.5 231.2 479.2 231.2 C 484.8 231.2 490.5 267.5 496.1 285.6 C 501.8 303.7 507.4 340.0 513.1 340.0 C 518.8 340.0 524.4 335.5 530.1 333.2 C 535.7 330.9 541.4 326.4 547.0 326.4 C 552.7 326.4 558.3 335.5 564.0 340.0 L 564.0 340.0 L 72.0 340.0 Z" fill="url(#area)"/>
 <line x1="72" y1="338.64" x2="564" y2="338.64" stroke="#8c959f" stroke-width="1.5" stroke-dasharray="4 3"/>
-<path d="M 72.0 340.0 C 77.7 340.0 83.3 340.0 89.0 340.0 C 94.6 340.0 100.3 333.2 105.9 333.2 C 111.6 333.2 117.2 340.0 122.9 340.0 C 128.6 340.0 134.2 340.0 139.9 340.0 C 145.5 340.0 151.2 340.0 156.8 340.0 C 162.5 340.0 168.1 340.0 173.8 340.0 C 179.4 340.0 185.1 340.0 190.8 340.0 C 196.4 340.0 202.1 340.0 207.7 340.0 C 213.4 340.0 219.0 340.0 224.7 340.0 C 230.3 340.0 236.0 340.0 241.7 340.0 C 247.3 340.0 253.0 340.0 258.6 333.2 C 264.3 326.4 269.9 292.4 275.6 292.4 C 281.2 292.4 286.9 312.8 292.6 312.8 C 298.2 312.8 303.9 238.0 309.5 238.0 C 315.2 238.0 320.8 274.6 326.5 278.8 C 332.1 283.0 337.8 280.2 343.4 285.6 C 349.1 291.0 354.8 340.0 360.4 340.0 C 366.1 340.0 371.7 340.0 377.4 340.0 C 383.0 340.0 388.7 325.3 394.3 319.6 C 400.0 313.9 405.7 306.0 411.3 306.0 C 417.0 306.0 422.6 340.0 428.3 340.0 C 433.9 340.0 439.6 340.0 445.2 340.0 C 450.9 340.0 456.6 340.0 462.2 340.0 C 467.9 340.0 473.5 340.0 479.2 340.0 C 484.8 340.0 490.5 231.2 496.1 231.2 C 501.8 231.2 507.4 267.5 513.1 285.6 C 518.8 303.7 524.4 340.0 530.1 340.0 C 535.7 340.0 541.4 335.5 547.0 333.2 C 552.7 330.9 558.3 328.7 564.0 326.4" fill="none" stroke="#1f2328" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-<text x="72" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">2 Oct</text>
-<text x="156.83" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">7 Oct</text>
-<text x="241.66" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">12 Oct</text>
-<text x="326.48" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">17 Oct</text>
-<text x="411.31" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">22 Oct</text>
-<text x="496.14" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">27 Oct</text>
+<path d="M 72.0 340.0 C 77.7 337.7 83.3 333.2 89.0 333.2 C 94.6 333.2 100.3 340.0 105.9 340.0 C 111.6 340.0 117.2 340.0 122.9 340.0 C 128.6 340.0 134.2 340.0 139.9 340.0 C 145.5 340.0 151.2 340.0 156.8 340.0 C 162.5 340.0 168.1 340.0 173.8 340.0 C 179.4 340.0 185.1 340.0 190.8 340.0 C 196.4 340.0 202.1 340.0 207.7 340.0 C 213.4 340.0 219.0 340.0 224.7 340.0 C 230.3 340.0 236.0 340.0 241.7 333.2 C 247.3 326.4 253.0 292.4 258.6 292.4 C 264.3 292.4 269.9 312.8 275.6 312.8 C 281.2 312.8 286.9 238.0 292.6 238.0 C 298.2 238.0 303.9 274.6 309.5 278.8 C 315.2 283.0 320.8 280.2 326.5 285.6 C 332.1 291.0 337.8 340.0 343.4 340.0 C 349.1 340.0 354.8 340.0 360.4 340.0 C 366.1 340.0 371.7 325.3 377.4 319.6 C 383.0 313.9 388.7 306.0 394.3 306.0 C 400.0 306.0 405.7 340.0 411.3 340.0 C 417.0 340.0 422.6 340.0 428.3 340.0 C 433.9 340.0 439.6 340.0 445.2 340.0 C 450.9 340.0 456.6 340.0 462.2 340.0 C 467.9 340.0 473.5 231.2 479.2 231.2 C 484.8 231.2 490.5 267.5 496.1 285.6 C 501.8 303.7 507.4 340.0 513.1 340.0 C 518.8 340.0 524.4 335.5 530.1 333.2 C 535.7 330.9 541.4 326.4 547.0 326.4 C 552.7 326.4 558.3 335.5 564.0 340.0" fill="none" stroke="#1f2328" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="72" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">3 Oct</text>
+<text x="156.83" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">8 Oct</text>
+<text x="241.66" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">13 Oct</text>
+<text x="326.48" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">18 Oct</text>
+<text x="411.31" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">23 Oct</text>
+<text x="496.14" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">28 Oct</text>
 <text x="564" y="362" font-size="10.5" fill="#6e7781" text-anchor="end">Today</text>
-<line x1="496.14" y1="200" x2="496.14" y2="340" stroke="#8c959f" stroke-dasharray="3 3"/>
-<circle cx="496.14" cy="231.2" r="5" fill="#f6f8fa" stroke="#1f2328" stroke-width="2"/>
-<rect x="387.34" y="213.2" width="96.8" height="44" rx="8" fill="#ffffff" stroke="#d1d9e0"/>
-<text x="399.34" y="231.2" font-size="11" fill="#59636e">27 Oct 2026</text>
-<text x="399.34" y="248.2" font-size="13" fill="#1f2328" font-weight="600">16 commits</text>
+<line x1="479.17" y1="200" x2="479.17" y2="340" stroke="#8c959f" stroke-dasharray="3 3"/>
+<circle cx="479.17" cy="231.2" r="5" fill="#f6f8fa" stroke="#1f2328" stroke-width="2"/>
+<rect x="370.37" y="213.2" width="96.8" height="44" rx="8" fill="#ffffff" stroke="#d1d9e0"/>
+<text x="382.37" y="231.2" font-size="11" fill="#59636e">27 Oct 2026</text>
+<text x="382.37" y="248.2" font-size="13" fill="#1f2328" font-weight="600">16 commits</text>
 <rect x="600.5" y="128.5" width="271" height="247" rx="16" fill="#f6f8fa" stroke="#d1d9e0"/>
 <text x="620" y="160" font-size="14" fill="#1f2328" font-weight="600">Language Distribution</text>
 <text x="620" y="178" font-size="11.5" fill="#6e7781">Share of 151k lines added in source files</text>
@@ -129,51 +129,52 @@
 <text x="296" y="528" font-size="10.5" fill="#6e7781" text-anchor="end">100</text>
 <line x1="304" y1="472.5" x2="564" y2="472.5" stroke="#e6eaef" stroke-dasharray="2 4"/>
 <text x="296" y="476" font-size="10.5" fill="#6e7781" text-anchor="end">150</text>
-<rect x="308.49" y="611.36" width="14.65" height="16.64" rx="2" fill="#1a7f37"/>
-<rect x="308.49" y="595.76" width="14.65" height="14.1" rx="2" fill="#8250df"/>
-<rect x="308.49" y="593.68" width="14.65" height="1" rx="0.5" fill="#1b7c83"/>
-<rect x="308.49" y="589.52" width="14.65" height="2.66" rx="1.33" fill="#8c959f"/>
-<rect x="332.13" y="622.8" width="14.65" height="5.2" rx="2" fill="#1a7f37"/>
-<rect x="332.13" y="620.72" width="14.65" height="1" rx="0.5" fill="#0969da"/>
-<rect x="332.13" y="619.68" width="14.65" height="1" rx="0.5" fill="#8250df"/>
-<rect x="355.76" y="626" width="14.65" height="2" rx="1" fill="#e6eaef"/>
-<rect x="379.4" y="626" width="14.65" height="2" rx="1" fill="#e6eaef"/>
-<rect x="403.04" y="626" width="14.65" height="2" rx="1" fill="#e6eaef"/>
-<rect x="426.67" y="611.36" width="14.65" height="16.64" rx="2" fill="#1a7f37"/>
-<rect x="426.67" y="608.24" width="14.65" height="1.62" rx="0.81" fill="#0969da"/>
-<rect x="426.67" y="607.2" width="14.65" height="1" rx="0.5" fill="#8250df"/>
-<rect x="450.31" y="588.48" width="14.65" height="39.52" rx="2" fill="#1a7f37"/>
-<rect x="450.31" y="577.04" width="14.65" height="9.94" rx="2" fill="#0969da"/>
-<rect x="450.31" y="576" width="14.65" height="1" rx="0.5" fill="#1b7c83"/>
-<rect x="450.31" y="574.96" width="14.65" height="1" rx="0.5" fill="#8c959f"/>
-<rect x="473.95" y="595.76" width="14.65" height="32.24" rx="2" fill="#1a7f37"/>
-<rect x="473.95" y="586.4" width="14.65" height="7.86" rx="2" fill="#0969da"/>
-<rect x="473.95" y="584.32" width="14.65" height="1" rx="0.5" fill="#bc4c00"/>
-<rect x="473.95" y="581.2" width="14.65" height="1.62" rx="0.81" fill="#8250df"/>
-<rect x="473.95" y="573.92" width="14.65" height="5.78" rx="2" fill="#1b7c83"/>
-<rect x="473.95" y="567.68" width="14.65" height="4.74" rx="2" fill="#8c959f"/>
-<rect x="497.58" y="569.76" width="14.65" height="58.24" rx="2" fill="#1a7f37"/>
-<rect x="497.58" y="548.96" width="14.65" height="19.3" rx="2" fill="#0969da"/>
-<rect x="497.58" y="543.76" width="14.65" height="3.7" rx="1.85" fill="#bc4c00"/>
-<rect x="497.58" y="529.2" width="14.65" height="13.06" rx="2" fill="#8250df"/>
-<rect x="497.58" y="504.24" width="14.65" height="23.46" rx="2" fill="#1b7c83"/>
-<rect x="497.58" y="502.16" width="14.65" height="1" rx="0.5" fill="#8c959f"/>
-<rect x="521.22" y="626.96" width="14.65" height="1.04" rx="0.52" fill="#1a7f37"/>
-<rect x="521.22" y="624.88" width="14.65" height="1" rx="0.5" fill="#0969da"/>
-<rect x="521.22" y="622.8" width="14.65" height="1" rx="0.5" fill="#1b7c83"/>
-<rect x="521.22" y="621.76" width="14.65" height="1" rx="0.5" fill="#8c959f"/>
-<rect x="544.85" y="570.8" width="14.65" height="57.2" rx="2" fill="#1a7f37"/>
-<rect x="544.85" y="565.6" width="14.65" height="3.7" rx="1.85" fill="#0969da"/>
-<rect x="544.85" y="561.44" width="14.65" height="2.66" rx="1.33" fill="#bc4c00"/>
-<rect x="544.85" y="560.4" width="14.65" height="1" rx="0.5" fill="#8250df"/>
-<rect x="544.85" y="557.28" width="14.65" height="1.62" rx="0.81" fill="#1b7c83"/>
-<rect x="544.85" y="544.8" width="14.65" height="10.98" rx="2" fill="#8c959f"/>
-<text x="315.82" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Dec</text>
-<text x="363.09" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Feb</text>
-<text x="410.36" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Apr</text>
-<text x="457.64" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Jun</text>
-<text x="504.91" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Aug</text>
-<text x="552.18" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Oct</text>
+<rect x="308.12" y="611.36" width="13.43" height="16.64" rx="2" fill="#1a7f37"/>
+<rect x="308.12" y="595.76" width="13.43" height="14.1" rx="2" fill="#8250df"/>
+<rect x="308.12" y="593.68" width="13.43" height="1" rx="0.5" fill="#1b7c83"/>
+<rect x="308.12" y="589.52" width="13.43" height="2.66" rx="1.33" fill="#8c959f"/>
+<rect x="329.78" y="622.8" width="13.43" height="5.2" rx="2" fill="#1a7f37"/>
+<rect x="329.78" y="620.72" width="13.43" height="1" rx="0.5" fill="#0969da"/>
+<rect x="329.78" y="619.68" width="13.43" height="1" rx="0.5" fill="#8250df"/>
+<rect x="351.45" y="626" width="13.43" height="2" rx="1" fill="#e6eaef"/>
+<rect x="373.12" y="626" width="13.43" height="2" rx="1" fill="#e6eaef"/>
+<rect x="394.78" y="626" width="13.43" height="2" rx="1" fill="#e6eaef"/>
+<rect x="416.45" y="611.36" width="13.43" height="16.64" rx="2" fill="#1a7f37"/>
+<rect x="416.45" y="608.24" width="13.43" height="1.62" rx="0.81" fill="#0969da"/>
+<rect x="416.45" y="607.2" width="13.43" height="1" rx="0.5" fill="#8250df"/>
+<rect x="438.12" y="588.48" width="13.43" height="39.52" rx="2" fill="#1a7f37"/>
+<rect x="438.12" y="577.04" width="13.43" height="9.94" rx="2" fill="#0969da"/>
+<rect x="438.12" y="576" width="13.43" height="1" rx="0.5" fill="#1b7c83"/>
+<rect x="438.12" y="574.96" width="13.43" height="1" rx="0.5" fill="#8c959f"/>
+<rect x="459.78" y="595.76" width="13.43" height="32.24" rx="2" fill="#1a7f37"/>
+<rect x="459.78" y="586.4" width="13.43" height="7.86" rx="2" fill="#0969da"/>
+<rect x="459.78" y="584.32" width="13.43" height="1" rx="0.5" fill="#bc4c00"/>
+<rect x="459.78" y="581.2" width="13.43" height="1.62" rx="0.81" fill="#8250df"/>
+<rect x="459.78" y="573.92" width="13.43" height="5.78" rx="2" fill="#1b7c83"/>
+<rect x="459.78" y="567.68" width="13.43" height="4.74" rx="2" fill="#8c959f"/>
+<rect x="481.45" y="569.76" width="13.43" height="58.24" rx="2" fill="#1a7f37"/>
+<rect x="481.45" y="548.96" width="13.43" height="19.3" rx="2" fill="#0969da"/>
+<rect x="481.45" y="543.76" width="13.43" height="3.7" rx="1.85" fill="#bc4c00"/>
+<rect x="481.45" y="529.2" width="13.43" height="13.06" rx="2" fill="#8250df"/>
+<rect x="481.45" y="504.24" width="13.43" height="23.46" rx="2" fill="#1b7c83"/>
+<rect x="481.45" y="502.16" width="13.43" height="1" rx="0.5" fill="#8c959f"/>
+<rect x="503.12" y="626.96" width="13.43" height="1.04" rx="0.52" fill="#1a7f37"/>
+<rect x="503.12" y="624.88" width="13.43" height="1" rx="0.5" fill="#0969da"/>
+<rect x="503.12" y="622.8" width="13.43" height="1" rx="0.5" fill="#1b7c83"/>
+<rect x="503.12" y="621.76" width="13.43" height="1" rx="0.5" fill="#8c959f"/>
+<rect x="524.78" y="570.8" width="13.43" height="57.2" rx="2" fill="#1a7f37"/>
+<rect x="524.78" y="565.6" width="13.43" height="3.7" rx="1.85" fill="#0969da"/>
+<rect x="524.78" y="561.44" width="13.43" height="2.66" rx="1.33" fill="#bc4c00"/>
+<rect x="524.78" y="560.4" width="13.43" height="1" rx="0.5" fill="#8250df"/>
+<rect x="524.78" y="557.28" width="13.43" height="1.62" rx="0.81" fill="#1b7c83"/>
+<rect x="524.78" y="544.8" width="13.43" height="10.98" rx="2" fill="#8c959f"/>
+<rect x="546.45" y="626" width="13.43" height="2" rx="1" fill="#e6eaef"/>
+<text x="314.83" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Dec</text>
+<text x="358.17" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Feb</text>
+<text x="401.5" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Apr</text>
+<text x="444.83" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Jun</text>
+<text x="488.17" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Aug</text>
+<text x="531.5" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Oct</text>
 <rect x="600.5" y="392.5" width="271" height="279" rx="16" fill="#f6f8fa" stroke="#d1d9e0"/>
 <text x="620" y="424" font-size="14" fill="#1f2328" font-weight="600">Continuous Integration</text>
 <text x="620" y="442" font-size="11.5" fill="#6e7781">Workflow runs in public repositories</text>
@@ -197,10 +198,10 @@
 <circle cx="706" cy="594" r="3.5" fill="#1a7f37"/>
 <text x="718" y="598" font-size="12" fill="#1f2328">Succeeded, 31 Oct</text>
 <text x="620" y="622" font-size="12" fill="#6e7781">Period</text>
-<text x="718" y="622" font-size="12" fill="#1f2328">Dec 2025 - Oct 2026</text>
+<text x="718" y="622" font-size="12" fill="#1f2328">Dec 2025 - Nov 2026</text>
 <text x="620" y="646" font-size="12" fill="#6e7781">Updated</text>
 <circle cx="706" cy="642" r="3.5" fill="#1a7f37"/>
-<text x="718" y="646" font-size="12" fill="#1f2328" class="stamp">31 Oct 2026, 05:07</text>
+<text x="718" y="646" font-size="12" fill="#1f2328" class="stamp">1 Nov 2026, 00:07</text>
 <rect x="24.5" y="688.5" width="559" height="287" rx="16" fill="#f6f8fa" stroke="#d1d9e0"/>
 <text x="44" y="720" font-size="14" fill="#1f2328" font-weight="600">Repositories</text>
 <text x="44" y="738" font-size="11.5" fill="#6e7781">Ranked by commit count</text>
