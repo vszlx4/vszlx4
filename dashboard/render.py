@@ -194,11 +194,11 @@ def draw(m):
     x, w = col(0), span(8)
     days = m['days_last']
     vals = [v for _, v in days]
-    prev_avg = sum(v for _, v in m['days_prev']) / 30
+    prev = [v for _, v in m['days_prev']]  # the 30 days before, day i drawn under day i of the current window
     s.card(x, y, w, h, 'Commit Activity', 'Daily commits over the last 30 days')
-    s.legend(x + w - P, y + 36, [('Daily commits', T['text'], False), ('Prior 30-day average', T['mid'], True)])
+    s.legend(x + w - P, y + 36, [('Last 30 days', T['text'], False), ('Prior 30 days', T['mid'], True)])
     gx0, gx1, gt, gb = x + P + 28, x + w - P, y + 76, y + h - 36
-    ticks = ch.nice_ticks(max(vals + [prev_avg, 1]), 4)
+    ticks = ch.nice_ticks(max(vals + prev + [1]), 4)
     sc = ch.Linear(0, ticks[-1], gb, gt)
     for v in ticks:
         s.hline(gx0, gx1, sc(v), T['grid'], dash=None if v == 0 else '2 4')
@@ -209,7 +209,8 @@ def draw(m):
                '<stop offset="1" stop-color="{c}" stop-opacity="0"/></linearGradient></defs>'.format(c=T['text']))
     line = monotone(pts)
     s.el('path', d='{} L {:.1f} {:.1f} L {:.1f} {:.1f} Z'.format(line, gx1, gb, gx0, gb), fill='url(#area)')
-    s.el('line', x1=gx0, y1=sc(prev_avg), x2=gx1, y2=sc(prev_avg), stroke=T['mid'], stroke_width=1.5, stroke_dasharray='4 3')
+    s.el('path', d=monotone([(xs(i), sc(v)) for i, v in enumerate(prev)]), fill='none', stroke=T['mid'], stroke_width=1.5,
+         stroke_dasharray='4 3', stroke_linejoin='round')
     s.el('path', d=line, fill='none', stroke=T['text'], stroke_width=2, stroke_linejoin='round', stroke_linecap='round')
     for i in range(0, 30, 5):
         s.tx(xs(i), gb + 22, day(days[i][0]), 10.5, T['muted'], anchor='middle')
