@@ -24,6 +24,7 @@ THEMES = {
         green='#3fb950', red='#f85149', amber='#d29922',
         lang={'Python': '#f5d547', 'Svelte': '#f0661f', 'TypeScript': '#4a8fe0', 'HTML': '#cc2f5a', 'CSS': '#c4a1ff',
               'JavaScript': '#e8c547', 'Go': '#3fc1d9', 'Rust': '#d9875a', 'Shell': '#89e051', 'Other': '#6e7681'},
+        spare=['#2dba9f', '#e05dad', '#a3b8ff', '#b08d57', '#9fbf3b'],  # for languages without a colour above
         types={'Feature': '#3fb950', 'Fix': '#4493f8', 'Refactor': '#f0883e', 'Test': '#ab7df8', 'Docs': '#39c5cf',
                'Maintenance': '#6e7681'},
     ),
@@ -33,12 +34,14 @@ THEMES = {
         green='#1a7f37', red='#d1242f', amber='#9a6700',
         lang={'Python': '#9a6700', 'Svelte': '#f0781f', 'TypeScript': '#0969da', 'HTML': '#a0114a', 'CSS': '#c49cf7',
               'JavaScript': '#bf8700', 'Go': '#1b7c83', 'Rust': '#bc4c00', 'Shell': '#4d8a1f', 'Other': '#8c959f'},
+        spare=['#0e8a6f', '#bf3989', '#5a6fd6', '#8a6a3b', '#6b8a1f'],
         types={'Feature': '#1a7f37', 'Fix': '#0969da', 'Refactor': '#bc4c00', 'Test': '#8250df', 'Docs': '#1b7c83',
                'Maintenance': '#8c959f'},
     ),
 }
 T, LANG, TYPE = THEMES['dark'], THEMES['dark']['lang'], THEMES['dark']['types']
 TYPE_LABEL = {'Docs': 'Documentation'}
+LANG_LABEL = {'Jupyter Notebook': 'Jupyter', 'Visual Basic .NET': 'VB.NET', 'Vim Script': 'Vim'}  # GitHub names too long to fit
 
 
 def col(i):
@@ -52,6 +55,12 @@ def span(n):
 def tw(s, size):
     """Approximate rendered width of sans text; numbers are tabular so this is stable."""
     return len(s) * size * 0.56
+
+
+def fit(s, size, width):
+    """s, cut short with an ellipsis if it would be wider than width."""
+    n = int(width / (size * 0.56))
+    return s if len(s) <= n else s[:max(1, n - 1)].rstrip() + '…'
 
 
 class D(ch.Svg):
@@ -240,23 +249,26 @@ def draw(m):
     vals_l = [(l, langs['totals'][l] if l != 'Other' else sum(v for k, v in langs['totals'].items() if k not in langs['top']))
               for l in langs['order']]
     grand = sum(v for _, v in vals_l) or 1
-    s.card(x, y, w, h, 'Language Distribution', 'Share of {} lines added in source files'.format(ch.fmt_compact(grand)))
+    spare = iter(T['spare'])
+    color = {l: LANG[l] if l in LANG else next(spare, LANG['Other']) for l, _ in vals_l}
+    s.card(x, y, w, h, 'Language Distribution', 'Current code: {} in {} repositor{}'.format(
+        ch.fmt_bytes(grand), langs['repos'], 'y' if langs['repos'] == 1 else 'ies'))
     cx, cy, r = x + P + 52, y + 148, 50
     a = -math.pi / 2
     for l, v in vals_l:
         sw = 2 * math.pi * v / grand
         if sw > 0.04:
-            s.el('path', d=_arc(cx, cy, r, a + 0.02, a + sw - 0.02), fill='none', stroke=LANG.get(l, LANG['Other']), stroke_width=16)
+            s.el('path', d=_arc(cx, cy, r, a + 0.02, a + sw - 0.02), fill='none', stroke=color[l], stroke_width=16)
         a += sw
     if vals_l:
         top_l, top_v = vals_l[0]
-        s.tx(cx, cy - 4, top_l, 11.5, T['text2'], anchor='middle')
+        s.tx(cx, cy - 4, fit(LANG_LABEL.get(top_l, top_l), 11.5, 2 * r - 24), 11.5, T['text2'], anchor='middle')
         s.tx(cx, cy + 16, ch.fmt_pct(top_v / grand), 20, T['text'], 600, anchor='middle')
     lx0, lx1 = x + P + 122, x + w - P
     for i, (l, v) in enumerate(vals_l):
         ry = y + 92 + i * 22
-        s.el('circle', cx=lx0 + 4, cy=ry - 4, r=4, fill=LANG.get(l, LANG['Other']))
-        s.tx(lx0 + 14, ry, l, 12, T['text'])
+        s.el('circle', cx=lx0 + 4, cy=ry - 4, r=4, fill=color[l])
+        s.tx(lx0 + 14, ry, fit(LANG_LABEL.get(l, l), 12, lx1 - lx0 - 14 - tw('00%', 12) - 4), 12, T['text'])
         s.tx(lx1, ry, ch.fmt_pct(v / grand), 12, T['text2'], anchor='end')
 
     # ---------------------------------------------------------------- commit categories: ranked list + monthly stacked columns
@@ -376,7 +388,7 @@ def draw(m):
         s.tx(X['name'], ry, name, 12, T['text2'] if r_.get('private') else T['text'], None if r_.get('private') else 500)
         s.tag(X['status'], ry - 14, status, tone)
         if r_.get('language'):
-            s.el('circle', cx=X['lang'] + 4, cy=ry - 4, r=4, fill=LANG.get(r_['language'], LANG['Other']))
+            s.el('circle', cx=X['lang'] + 4, cy=ry - 4, r=4, fill=color.get(r_['language'], LANG.get(r_['language'], LANG['Other'])))
             s.tx(X['lang'] + 14, ry, r_['language'], 12, T['text2'])
         else:
             s.tx(X['lang'], ry, 'Multiple', 12, T['muted'])

@@ -163,8 +163,13 @@ def collect(token, login, out_dir, files_cache):
     if budget <= 0:
         print('File-list budget reached; remaining commits are fetched on the next run.', flush=True)
 
-    # Actions runs, issues/PRs and test files for owned public repositories with commits
+    # Current code size per language (GitHub's own byte counts, as on each repository page) of every repository
+    # with authored commits, so deleted or rewritten code no longer counts
     mine = {c['repo'] for c in commits}
+    _dump(os.path.join(out_dir, 'languages.json'),
+          {r['name']: gh.rest('/repos/{}/languages'.format(r['full_name'])) or {} for r in repos if r['name'] in mine})
+
+    # Actions runs, issues/PRs and test files for owned public repositories with commits
     tests = {}
     for r in repos:
         if r.get('private') or r['owner']['login'].lower() != login.lower() or r['name'] not in mine:
