@@ -189,46 +189,50 @@ def draw(m):
         arrow = '↗ ' if tone == T['green'] else '↘ ' if tone == T['red'] else ''
         s.pill(x + span(3) - P, y + 48, arrow + delta, tone, 'end')
 
-    # ---------------------------------------------------------------- commit activity: last 30 days, daily
+    # ---------------------------------------------------------------- commit activity: 60 days, daily, the last 30 highlighted
+    # One continuous timeline, so every point sits at its real date: the prior 30 days are muted, the last 30 bright.
     y, h = 128, 248
     x, w = col(0), span(8)
-    days = m['days_last']
+    days = m['days_prev'] + m['days_last']  # 60 consecutive days, oldest first, today last
     vals = [v for _, v in days]
-    prev = [v for _, v in m['days_prev']]  # the 30 days before, day i drawn under day i of the current window
-    s.card(x, y, w, h, 'Commit Activity', 'Daily commits over the last 30 days')
-    s.legend(x + w - P, y + 36, [('Last 30 days', T['text'], False), ('Prior 30 days', T['mid'], True)])
+    cur, prior = sum(vals[30:]), sum(vals[:30])
+    s.card(x, y, w, h, 'Commit Activity', 'Daily commits over the last 60 days')
+    s.legend(x + w - P, y + 36, [('Prior 30 days · {}'.format(ch.fmt_int(prior)), T['mid'], False),
+                                 ('Last 30 days · {}'.format(ch.fmt_int(cur)), T['text'], False)])
     gx0, gx1, gt, gb = x + P + 28, x + w - P, y + 76, y + h - 36
-    ticks = ch.nice_ticks(max(vals + prev + [1]), 4)
+    ticks = ch.nice_ticks(max(vals + [1]), 4)
     sc = ch.Linear(0, ticks[-1], gb, gt)
     for v in ticks:
         s.hline(gx0, gx1, sc(v), T['grid'], dash=None if v == 0 else '2 4')
         s.tx(gx0 - 10, sc(v) + 4, ch.fmt_int(v), 10.5, T['muted'], anchor='end')
-    xs = lambda i: gx0 + i / 29 * (gx1 - gx0)
+    xs = lambda i: gx0 + i / 59 * (gx1 - gx0)
+    split = (xs(29) + xs(30)) / 2
     pts = [(xs(i), sc(v)) for i, v in enumerate(vals)]
-    s.o.append('<defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{c}" stop-opacity="0.16"/>'
-               '<stop offset="1" stop-color="{c}" stop-opacity="0"/></linearGradient></defs>'.format(c=T['text']))
     line = monotone(pts)
-    s.el('path', d='{} L {:.1f} {:.1f} L {:.1f} {:.1f} Z'.format(line, gx1, gb, gx0, gb), fill='url(#area)')
-    s.el('path', d=monotone([(xs(i), sc(v)) for i, v in enumerate(prev)]), fill='none', stroke=T['mid'], stroke_width=1.5,
-         stroke_dasharray='4 3', stroke_linejoin='round')
-    s.el('path', d=line, fill='none', stroke=T['text'], stroke_width=2, stroke_linejoin='round', stroke_linecap='round')
-    for i in range(0, 30, 5):
+    s.o.append('<defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{c}" stop-opacity="0.16"/>'
+               '<stop offset="1" stop-color="{c}" stop-opacity="0"/></linearGradient>'
+               '<clipPath id="prior"><rect x="{x0:.1f}" y="{y0:.1f}" width="{w0:.1f}" height="{hh:.1f}"/></clipPath>'
+               '<clipPath id="last"><rect x="{x1:.1f}" y="{y0:.1f}" width="{w1:.1f}" height="{hh:.1f}"/></clipPath></defs>'.format(
+                   c=T['text'], x0=gx0 - 4, w0=split - gx0 + 4, x1=split, w1=gx1 - split + 4, y0=gt - 12, hh=gb - gt + 16))
+    s.vline(split, gt - 4, gb, T['line'])
+    s.el('path', d='{} L {:.1f} {:.1f} L {:.1f} {:.1f} Z'.format(line, gx1, gb, gx0, gb), fill='url(#area)', clip_path='url(#last)')
+    s.el('path', d=line, fill='none', stroke=T['mid'], stroke_width=1.5, stroke_linejoin='round', clip_path='url(#prior)')
+    s.el('path', d=line, fill='none', stroke=T['text'], stroke_width=2, stroke_linejoin='round', stroke_linecap='round',
+         clip_path='url(#last)')
+    for i in range(0, 60, 10):
         s.tx(xs(i), gb + 22, day(days[i][0]), 10.5, T['muted'], anchor='middle')
     s.tx(gx1, gb + 22, 'Today', 10.5, T['muted'], anchor='end')
-    if max(vals) > 0:
-        pk = max(range(30), key=lambda i: (vals[i], i))
+    if cur:
+        pk = max(range(30, 60), key=lambda i: (vals[i], i))  # peak of the last 30 days
         px, py = pts[pk]
-        s.el('line', x1=px, y1=gt - 4, x2=px, y2=gb, stroke=T['mid'], stroke_dasharray='3 3')
+        s.el('line', x1=px, y1=gt - 18, x2=px, y2=gb, stroke=T['mid'], stroke_dasharray='3 3')
         s.el('circle', cx=px, cy=py, r=5, fill=T['card'], stroke=T['text'], stroke_width=2)
-        l1, l2 = day(days[pk][0]) + ' ' + str(days[pk][0].year), '{} commits'.format(vals[pk])
-        bw = max(tw(l1, 11), tw(l2, 13)) + 24
-        bx = px + 12 if px + 12 + bw < gx1 else px - 12 - bw
-        by = max(gt, py - 18)
-        s.el('rect', x=bx, y=by, width=bw, height=44, rx=8, fill=T['inset'], stroke=T['line'])
-        s.tx(bx + 12, by + 18, l1, 11, T['text2'])
-        s.tx(bx + 12, by + 35, l2, 13, T['text'], 600)
+        # one line above the plot, beside the marker, so it never covers the data
+        label = '{} commits · {}'.format(vals[pk], day(days[pk][0]))
+        right = px + 8 + tw(label, 11.5) <= gx1
+        s.tx(px + 8 if right else px - 8, gt - 8, label, 11.5, T['text'], 600, 'start' if right else 'end')
     else:
-        s.tx((gx0 + gx1) / 2, (gt + gb) / 2, 'No commits in the last 30 days', 12, T['muted'], anchor='middle')
+        s.tx((split + gx1) / 2, (gt + gb) / 2, 'No commits in the last 30 days', 12, T['muted'], anchor='middle')
 
     # ---------------------------------------------------------------- language distribution (donut)
     x, w = col(8), span(4)
@@ -346,13 +350,15 @@ def draw(m):
 
     # ---------------------------------------------------------------- repositories
     y = 688
-    rows = sorted(m['repo_table'], key=lambda r_: -r_['commits'])[:6]
+    # the six public repositories committed to most recently; the pooled private row takes its place by its latest commit
+    rows = sorted(m['repo_table'], key=lambda r_: r_['last'], reverse=True)[:6]
     pv = m['repo_private']
     if pv['count']:
         rows.append(dict(pv, name='Private ({})'.format(pv['count']), language=None, private=True))
+        rows.sort(key=lambda r_: r_['last'], reverse=True)
     h = max(288, 96 + len(rows) * 30 + 8)
     x, w = col(0), span(8)
-    s.card(x, y, w, h, 'Repositories', 'Ranked by commit count')
+    s.card(x, y, w, h, 'Repositories', 'Most recent commits first')
     X = dict(name=x + P, status=x + 132, lang=x + 206, commits=x + 322, added=x + 384, prs=x + 432, tests=x + 466, last=x + w - P)
     hy = y + 80
     for k, lab, anc in (('name', 'Repository', None), ('status', 'Status', None), ('lang', 'Language', None),
