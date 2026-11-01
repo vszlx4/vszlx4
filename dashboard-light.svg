@@ -3,7 +3,7 @@
 <rect x="0" y="0" width="896" height="1000" rx="0" fill="#ffffff"/>
 <rect x="24.5" y="24.5" width="415" height="87" rx="16" fill="#f6f8fa" stroke="#d1d9e0"/>
 <text x="44" y="54" font-size="12" fill="#59636e">Total Commits</text>
-<text x="44" y="90" font-size="24" fill="#1f2328" font-weight="600">354</text>
+<text x="44" y="90" font-size="24" fill="#1f2328" font-weight="600">356</text>
 <line x1="126.5" y1="42" x2="126.5" y2="94" stroke="#d1d9e0"/>
 <text x="138" y="54" font-size="12" fill="#59636e">Lines Added</text>
 <text x="138" y="90" font-size="24" fill="#1f2328" font-weight="600">658k</text>
@@ -16,9 +16,9 @@
 <rect x="456.5" y="24.5" width="199" height="87" rx="16" fill="#f6f8fa" stroke="#d1d9e0"/>
 <text x="476" y="54" font-size="12" fill="#59636e">Commits</text>
 <text x="636" y="54" font-size="11" fill="#6e7781" text-anchor="end">Last 30 days</text>
-<text x="476" y="90" font-size="28" fill="#1f2328" font-weight="600">103</text>
+<text x="476" y="90" font-size="28" fill="#1f2328" font-weight="600">105</text>
 <rect x="574.88" y="72" width="61.12" height="22" rx="11" fill="#1a7f37" fill-opacity="0.12" stroke="#1a7f37" stroke-opacity="0.25"/>
-<text x="605.44" y="87" font-size="11" fill="#1a7f37" font-weight="500" text-anchor="middle">↗ 17.2×</text>
+<text x="605.44" y="87" font-size="11" fill="#1a7f37" font-weight="500" text-anchor="middle">↗ 17.5×</text>
 <rect x="672.5" y="24.5" width="199" height="87" rx="16" fill="#f6f8fa" stroke="#d1d9e0"/>
 <text x="692" y="54" font-size="12" fill="#59636e">Active Days</text>
 <text x="852" y="54" font-size="11" fill="#6e7781" text-anchor="end">Last 30 days</text>
@@ -41,9 +41,9 @@
 <line x1="72" y1="204.5" x2="564" y2="204.5" stroke="#e6eaef" stroke-dasharray="2 4"/>
 <text x="62" y="208" font-size="10.5" fill="#6e7781" text-anchor="end">30</text>
 <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f2328" stop-opacity="0.16"/><stop offset="1" stop-color="#1f2328" stop-opacity="0"/></linearGradient></defs>
-<path d="M 72.0 340.0 C 77.7 338.5 83.3 335.5 89.0 335.5 C 94.6 335.5 100.3 340.0 105.9 340.0 C 111.6 340.0 117.2 340.0 122.9 340.0 C 128.6 340.0 134.2 340.0 139.9 340.0 C 145.5 340.0 151.2 340.0 156.8 340.0 C 162.5 340.0 168.1 340.0 173.8 340.0 C 179.4 340.0 185.1 340.0 190.8 340.0 C 196.4 340.0 202.1 340.0 207.7 340.0 C 213.4 340.0 219.0 340.0 224.7 340.0 C 230.3 340.0 236.0 340.0 241.7 335.5 C 247.3 330.9 253.0 308.3 258.6 308.3 C 264.3 308.3 269.9 321.9 275.6 321.9 C 281.2 321.9 286.9 272.0 292.6 272.0 C 298.2 272.0 303.9 296.4 309.5 299.2 C 315.2 302.0 320.8 300.2 326.5 303.7 C 332.1 307.3 337.8 340.0 343.4 340.0 C 349.1 340.0 354.8 340.0 360.4 340.0 C 366.1 340.0 371.7 330.2 377.4 326.4 C 383.0 322.6 388.7 317.3 394.3 317.3 C 400.0 317.3 405.7 340.0 411.3 340.0 C 417.0 340.0 422.6 340.0 428.3 340.0 C 433.9 340.0 439.6 340.0 445.2 340.0 C 450.9 340.0 456.6 340.0 462.2 340.0 C 467.9 340.0 473.5 267.5 479.2 267.5 C 484.8 267.5 490.5 291.6 496.1 303.7 C 501.8 315.8 507.4 340.0 513.1 340.0 C 518.8 340.0 524.4 335.9 530.1 335.5 C 535.7 335.1 541.4 335.4 547.0 330.9 C 552.7 326.4 558.3 267.5 564.0 235.7 L 564.0 340.0 L 72.0 340.0 Z" fill="url(#area)"/>
+<path d="M 72.0 340.0 C 77.7 338.5 83.3 335.5 89.0 335.5 C 94.6 335.5 100.3 340.0 105.9 340.0 C 111.6 340.0 117.2 340.0 122.9 340.0 C 128.6 340.0 134.2 340.0 139.9 340.0 C 145.5 340.0 151.2 340.0 156.8 340.0 C 162.5 340.0 168.1 340.0 173.8 340.0 C 179.4 340.0 185.1 340.0 190.8 340.0 C 196.4 340.0 202.1 340.0 207.7 340.0 C 213.4 340.0 219.0 340.0 224.7 340.0 C 230.3 340.0 236.0 340.0 241.7 335.5 C 247.3 330.9 253.0 308.3 258.6 308.3 C 264.3 308.3 269.9 321.9 275.6 321.9 C 281.2 321.9 286.9 272.0 292.6 272.0 C 298.2 272.0 303.9 296.4 309.5 299.2 C 315.2 302.0 320.8 300.2 326.5 303.7 C 332.1 307.3 337.8 340.0 343.4 340.0 C 349.1 340.0 354.8 340.0 360.4 340.0 C 366.1 340.0 371.7 330.2 377.4 326.4 C 383.0 322.6 388.7 317.3 394.3 317.3 C 400.0 317.3 405.7 340.0 411.3 340.0 C 417.0 340.0 422.6 340.0 428.3 340.0 C 433.9 340.0 439.6 340.0 445.2 340.0 C 450.9 340.0 456.6 340.0 462.2 340.0 C 467.9 340.0 473.5 267.5 479.2 267.5 C 484.8 267.5 490.5 291.6 496.1 303.7 C 501.8 315.8 507.4 340.0 513.1 340.0 C 518.8 340.0 524.4 335.8 530.1 335.5 C 535.7 335.1 541.4 335.5 547.0 330.9 C 552.7 326.4 558.3 261.4 564.0 226.7 L 564.0 340.0 L 72.0 340.0 Z" fill="url(#area)"/>
 <path d="M 72.0 340.0 C 77.7 334.0 83.3 321.9 89.0 321.9 C 94.6 321.9 100.3 340.0 105.9 340.0 C 111.6 340.0 117.2 340.0 122.9 340.0 C 128.6 340.0 134.2 340.0 139.9 340.0 C 145.5 340.0 151.2 330.9 156.8 330.9 C 162.5 330.9 168.1 340.0 173.8 340.0 C 179.4 340.0 185.1 340.0 190.8 340.0 C 196.4 340.0 202.1 340.0 207.7 340.0 C 213.4 340.0 219.0 340.0 224.7 340.0 C 230.3 340.0 236.0 340.0 241.7 340.0 C 247.3 340.0 253.0 340.0 258.6 340.0 C 264.3 340.0 269.9 340.0 275.6 340.0 C 281.2 340.0 286.9 340.0 292.6 340.0 C 298.2 340.0 303.9 340.0 309.5 340.0 C 315.2 340.0 320.8 340.0 326.5 340.0 C 332.1 340.0 337.8 340.0 343.4 340.0 C 349.1 340.0 354.8 340.0 360.4 340.0 C 366.1 340.0 371.7 340.0 377.4 340.0 C 383.0 340.0 388.7 340.0 394.3 340.0 C 400.0 340.0 405.7 340.0 411.3 340.0 C 417.0 340.0 422.6 340.0 428.3 340.0 C 433.9 340.0 439.6 340.0 445.2 340.0 C 450.9 340.0 456.6 340.0 462.2 340.0 C 467.9 340.0 473.5 340.0 479.2 340.0 C 484.8 340.0 490.5 340.0 496.1 340.0 C 501.8 340.0 507.4 340.0 513.1 340.0 C 518.8 340.0 524.4 340.0 530.1 340.0 C 535.7 340.0 541.4 340.0 547.0 340.0 C 552.7 340.0 558.3 340.0 564.0 340.0" fill="none" stroke="#8c959f" stroke-width="1.5" stroke-dasharray="4 3" stroke-linejoin="round"/>
-<path d="M 72.0 340.0 C 77.7 338.5 83.3 335.5 89.0 335.5 C 94.6 335.5 100.3 340.0 105.9 340.0 C 111.6 340.0 117.2 340.0 122.9 340.0 C 128.6 340.0 134.2 340.0 139.9 340.0 C 145.5 340.0 151.2 340.0 156.8 340.0 C 162.5 340.0 168.1 340.0 173.8 340.0 C 179.4 340.0 185.1 340.0 190.8 340.0 C 196.4 340.0 202.1 340.0 207.7 340.0 C 213.4 340.0 219.0 340.0 224.7 340.0 C 230.3 340.0 236.0 340.0 241.7 335.5 C 247.3 330.9 253.0 308.3 258.6 308.3 C 264.3 308.3 269.9 321.9 275.6 321.9 C 281.2 321.9 286.9 272.0 292.6 272.0 C 298.2 272.0 303.9 296.4 309.5 299.2 C 315.2 302.0 320.8 300.2 326.5 303.7 C 332.1 307.3 337.8 340.0 343.4 340.0 C 349.1 340.0 354.8 340.0 360.4 340.0 C 366.1 340.0 371.7 330.2 377.4 326.4 C 383.0 322.6 388.7 317.3 394.3 317.3 C 400.0 317.3 405.7 340.0 411.3 340.0 C 417.0 340.0 422.6 340.0 428.3 340.0 C 433.9 340.0 439.6 340.0 445.2 340.0 C 450.9 340.0 456.6 340.0 462.2 340.0 C 467.9 340.0 473.5 267.5 479.2 267.5 C 484.8 267.5 490.5 291.6 496.1 303.7 C 501.8 315.8 507.4 340.0 513.1 340.0 C 518.8 340.0 524.4 335.9 530.1 335.5 C 535.7 335.1 541.4 335.4 547.0 330.9 C 552.7 326.4 558.3 267.5 564.0 235.7" fill="none" stroke="#1f2328" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M 72.0 340.0 C 77.7 338.5 83.3 335.5 89.0 335.5 C 94.6 335.5 100.3 340.0 105.9 340.0 C 111.6 340.0 117.2 340.0 122.9 340.0 C 128.6 340.0 134.2 340.0 139.9 340.0 C 145.5 340.0 151.2 340.0 156.8 340.0 C 162.5 340.0 168.1 340.0 173.8 340.0 C 179.4 340.0 185.1 340.0 190.8 340.0 C 196.4 340.0 202.1 340.0 207.7 340.0 C 213.4 340.0 219.0 340.0 224.7 340.0 C 230.3 340.0 236.0 340.0 241.7 335.5 C 247.3 330.9 253.0 308.3 258.6 308.3 C 264.3 308.3 269.9 321.9 275.6 321.9 C 281.2 321.9 286.9 272.0 292.6 272.0 C 298.2 272.0 303.9 296.4 309.5 299.2 C 315.2 302.0 320.8 300.2 326.5 303.7 C 332.1 307.3 337.8 340.0 343.4 340.0 C 349.1 340.0 354.8 340.0 360.4 340.0 C 366.1 340.0 371.7 330.2 377.4 326.4 C 383.0 322.6 388.7 317.3 394.3 317.3 C 400.0 317.3 405.7 340.0 411.3 340.0 C 417.0 340.0 422.6 340.0 428.3 340.0 C 433.9 340.0 439.6 340.0 445.2 340.0 C 450.9 340.0 456.6 340.0 462.2 340.0 C 467.9 340.0 473.5 267.5 479.2 267.5 C 484.8 267.5 490.5 291.6 496.1 303.7 C 501.8 315.8 507.4 340.0 513.1 340.0 C 518.8 340.0 524.4 335.8 530.1 335.5 C 535.7 335.1 541.4 335.5 547.0 330.9 C 552.7 326.4 558.3 261.4 564.0 226.7" fill="none" stroke="#1f2328" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
 <text x="72" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">3 Oct</text>
 <text x="156.83" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">8 Oct</text>
 <text x="241.66" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">13 Oct</text>
@@ -52,19 +52,19 @@
 <text x="496.14" y="362" font-size="10.5" fill="#6e7781" text-anchor="middle">28 Oct</text>
 <text x="564" y="362" font-size="10.5" fill="#6e7781" text-anchor="end">Today</text>
 <line x1="564" y1="200" x2="564" y2="340" stroke="#9a6700" stroke-dasharray="3 3"/>
-<circle cx="564" cy="235.73" r="5" fill="#f6f8fa" stroke="#1f2328" stroke-width="2"/>
-<rect x="455.2" y="217.73" width="96.8" height="44" rx="8" fill="#ffffff" stroke="#d1d9e0"/>
-<text x="467.2" y="235.73" font-size="11" fill="#59636e">1 Nov 2026</text>
-<text x="467.2" y="252.73" font-size="13" fill="#1f2328" font-weight="600">23 commits</text>
+<circle cx="564" cy="226.67" r="5" fill="#f6f8fa" stroke="#1f2328" stroke-width="2"/>
+<rect x="455.2" y="208.67" width="96.8" height="44" rx="8" fill="#ffffff" stroke="#d1d9e0"/>
+<text x="467.2" y="226.67" font-size="11" fill="#59636e">1 Nov 2026</text>
+<text x="467.2" y="243.67" font-size="13" fill="#1f2328" font-weight="600">25 commits</text>
 <rect x="600.5" y="128.5" width="271" height="247" rx="16" fill="#f6f8fa" stroke="#d1d9e0"/>
 <text x="620" y="160" font-size="14" fill="#1f2328" font-weight="600">Language Distribution</text>
 <text x="620" y="178" font-size="11.5" fill="#6e7781">Current code: 4.3 MB in 10 repositories</text>
-<path d="M 673.00 226.01 A 50 50 0 0 1 702.56 315.58" fill="none" stroke="#9a6700" stroke-width="16"/>
-<path d="M 700.95 316.77 A 50 50 0 0 1 632.09 306.12" fill="none" stroke="#0969da" stroke-width="16"/>
-<path d="M 630.92 304.50 A 50 50 0 0 1 632.05 245.93" fill="none" stroke="#f0781f" stroke-width="16"/>
-<path d="M 633.29 244.36 A 50 50 0 0 1 648.31 231.97" fill="none" stroke="#a0114a" stroke-width="16"/>
-<path d="M 650.09 231.06 A 50 50 0 0 1 659.40 227.61" fill="none" stroke="#c49cf7" stroke-width="16"/>
-<path d="M 661.34 227.15 A 50 50 0 0 1 671.00 226.01" fill="none" stroke="#8c959f" stroke-width="16"/>
+<path d="M 673.00 226.01 A 50 50 0 0 1 702.74 315.43" fill="none" stroke="#9a6700" stroke-width="16"/>
+<path d="M 701.14 316.63 A 50 50 0 0 1 632.31 306.41" fill="none" stroke="#0969da" stroke-width="16"/>
+<path d="M 631.12 304.80 A 50 50 0 0 1 632.10 245.86" fill="none" stroke="#f0781f" stroke-width="16"/>
+<path d="M 633.34 244.29 A 50 50 0 0 1 648.35 231.95" fill="none" stroke="#a0114a" stroke-width="16"/>
+<path d="M 650.13 231.04 A 50 50 0 0 1 659.42 227.61" fill="none" stroke="#c49cf7" stroke-width="16"/>
+<path d="M 661.36 227.14 A 50 50 0 0 1 671.00 226.01" fill="none" stroke="#8c959f" stroke-width="16"/>
 <text x="672" y="272" font-size="11.5" fill="#59636e" text-anchor="middle">Python</text>
 <text x="672" y="292" font-size="20" fill="#1f2328" font-weight="600" text-anchor="middle">40%</text>
 <circle cx="746" cy="216" r="4" fill="#9a6700"/>
@@ -90,34 +90,34 @@
 <text x="44" y="442" font-size="11.5" fill="#6e7781">Classified by commit message prefix and keywords</text>
 <rect x="44" y="467" width="10" height="10" rx="3" fill="#1a7f37"/>
 <text x="62" y="476" font-size="12.5" fill="#1f2328" font-weight="500">Feature</text>
-<text x="196" y="476" font-size="12.5" fill="#1f2328" font-weight="600" text-anchor="end">210</text>
-<text x="240" y="476" font-size="12" fill="#6e7781" text-anchor="end">59%</text>
+<text x="196" y="476" font-size="12.5" fill="#1f2328" font-weight="600" text-anchor="end">212</text>
+<text x="240" y="476" font-size="12" fill="#6e7781" text-anchor="end">60%</text>
 <rect x="62" y="483" width="178" height="3" rx="1.5" fill="#1a7f37"/>
 <rect x="44" y="497" width="10" height="10" rx="3" fill="#0969da"/>
 <text x="62" y="506" font-size="12.5" fill="#1f2328" font-weight="500">Fix</text>
 <text x="196" y="506" font-size="12.5" fill="#1f2328" font-weight="600" text-anchor="end">46</text>
 <text x="240" y="506" font-size="12" fill="#6e7781" text-anchor="end">13%</text>
-<rect x="62" y="513" width="38.99" height="3" rx="1.5" fill="#0969da"/>
+<rect x="62" y="513" width="38.62" height="3" rx="1.5" fill="#0969da"/>
 <rect x="44" y="527" width="10" height="10" rx="3" fill="#1b7c83"/>
 <text x="62" y="536" font-size="12.5" fill="#1f2328" font-weight="500">Documentation</text>
 <text x="196" y="536" font-size="12.5" fill="#1f2328" font-weight="600" text-anchor="end">39</text>
 <text x="240" y="536" font-size="12" fill="#6e7781" text-anchor="end">11%</text>
-<rect x="62" y="543" width="33.06" height="3" rx="1.5" fill="#1b7c83"/>
+<rect x="62" y="543" width="32.75" height="3" rx="1.5" fill="#1b7c83"/>
 <rect x="44" y="557" width="10" height="10" rx="3" fill="#8c959f"/>
 <text x="62" y="566" font-size="12.5" fill="#1f2328" font-weight="500">Maintenance</text>
 <text x="196" y="566" font-size="12.5" fill="#1f2328" font-weight="600" text-anchor="end">25</text>
 <text x="240" y="566" font-size="12" fill="#6e7781" text-anchor="end">7%</text>
-<rect x="62" y="573" width="21.19" height="3" rx="1.5" fill="#8c959f"/>
+<rect x="62" y="573" width="20.99" height="3" rx="1.5" fill="#8c959f"/>
 <rect x="44" y="587" width="10" height="10" rx="3" fill="#8250df"/>
 <text x="62" y="596" font-size="12.5" fill="#1f2328" font-weight="500">Test</text>
 <text x="196" y="596" font-size="12.5" fill="#1f2328" font-weight="600" text-anchor="end">19</text>
 <text x="240" y="596" font-size="12" fill="#6e7781" text-anchor="end">5%</text>
-<rect x="62" y="603" width="16.1" height="3" rx="1.5" fill="#8250df"/>
+<rect x="62" y="603" width="15.95" height="3" rx="1.5" fill="#8250df"/>
 <rect x="44" y="617" width="10" height="10" rx="3" fill="#bc4c00"/>
 <text x="62" y="626" font-size="12.5" fill="#1f2328" font-weight="500">Refactor</text>
 <text x="196" y="626" font-size="12.5" fill="#1f2328" font-weight="600" text-anchor="end">15</text>
 <text x="240" y="626" font-size="12" fill="#6e7781" text-anchor="end">4%</text>
-<rect x="62" y="633" width="12.71" height="3" rx="1.5" fill="#bc4c00"/>
+<rect x="62" y="633" width="12.59" height="3" rx="1.5" fill="#bc4c00"/>
 <line x1="260.5" y1="464" x2="260.5" y2="652" stroke="#d1d9e0"/>
 <line x1="304" y1="628.5" x2="564" y2="628.5" stroke="#e6eaef"/>
 <text x="296" y="632" font-size="10.5" fill="#6e7781" text-anchor="end">0</text>
@@ -163,8 +163,8 @@
 <rect x="524.78" y="560.4" width="13.43" height="1" rx="0.5" fill="#8250df"/>
 <rect x="524.78" y="557.28" width="13.43" height="1.62" rx="0.81" fill="#1b7c83"/>
 <rect x="524.78" y="544.8" width="13.43" height="10.98" rx="2" fill="#8c959f"/>
-<rect x="546.45" y="608.24" width="13.43" height="19.76" rx="2" fill="#1a7f37"/>
-<rect x="546.45" y="604.08" width="13.43" height="2.66" rx="1.33" fill="#bc4c00"/>
+<rect x="546.45" y="606.16" width="13.43" height="21.84" rx="2" fill="#1a7f37"/>
+<rect x="546.45" y="602" width="13.43" height="2.66" rx="1.33" fill="#bc4c00"/>
 <text x="314.83" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Dec</text>
 <text x="358.17" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Feb</text>
 <text x="401.5" y="650" font-size="10.5" fill="#6e7781" text-anchor="middle">Apr</text>
@@ -175,12 +175,12 @@
 <text x="620" y="424" font-size="14" fill="#1f2328" font-weight="600">Continuous Integration</text>
 <text x="620" y="442" font-size="11.5" fill="#6e7781">Workflow runs in public repositories</text>
 <path d="M 637.72 534.28 A 40 40 0 1 1 694.28 534.28" fill="none" stroke="#e6eaef" stroke-width="8" stroke-linecap="round"/>
-<path d="M 637.72 534.28 A 40 40 0 1 1 697.27 530.94" fill="none" stroke="#1a7f37" stroke-width="8" stroke-linecap="round"/>
-<text x="666" y="508" font-size="15" fill="#1f2328" font-weight="600" text-anchor="middle">97.6%</text>
+<path d="M 637.72 534.28 A 40 40 0 1 1 697.22 531.00" fill="none" stroke="#1a7f37" stroke-width="8" stroke-linecap="round"/>
+<text x="666" y="508" font-size="15" fill="#1f2328" font-weight="600" text-anchor="middle">97.7%</text>
 <text x="666" y="523" font-size="9.5" fill="#6e7781" text-anchor="middle">success rate</text>
 <circle cx="732" cy="474" r="3.5" fill="#1a7f37"/>
 <text x="742" y="478" font-size="12" fill="#59636e">Succeeded</text>
-<text x="852" y="478" font-size="12" fill="#1f2328" font-weight="500" text-anchor="end">328</text>
+<text x="852" y="478" font-size="12" fill="#1f2328" font-weight="500" text-anchor="end">334</text>
 <circle cx="732" cy="496" r="3.5" fill="#d1242f"/>
 <text x="742" y="500" font-size="12" fill="#59636e">Failed</text>
 <text x="852" y="500" font-size="12" fill="#1f2328" font-weight="500" text-anchor="end">8</text>
@@ -197,7 +197,7 @@
 <text x="718" y="622" font-size="12" fill="#1f2328">Dec 2025 - Nov 2026</text>
 <text x="620" y="646" font-size="12" fill="#6e7781">Updated</text>
 <circle cx="706" cy="642" r="3.5" fill="#1a7f37"/>
-<text x="718" y="646" font-size="12" fill="#1f2328" class="stamp">1 Nov 2026, 17:07</text>
+<text x="718" y="646" font-size="12" fill="#1f2328" class="stamp">1 Nov 2026, 18:07</text>
 <rect x="24.5" y="688.5" width="559" height="287" rx="16" fill="#f6f8fa" stroke="#d1d9e0"/>
 <text x="44" y="720" font-size="14" fill="#1f2328" font-weight="600">Repositories</text>
 <text x="44" y="738" font-size="11.5" fill="#6e7781">Most recent commits first</text>
@@ -215,9 +215,9 @@
 <text x="184" y="802" font-size="11" fill="#1a7f37" font-weight="500" text-anchor="middle">Active</text>
 <circle cx="234" cy="798" r="4" fill="#f0781f"/>
 <text x="244" y="802" font-size="12" fill="#59636e">Svelte</text>
-<text x="346" y="802" font-size="12" fill="#1f2328" font-weight="500" text-anchor="end">90</text>
+<text x="346" y="802" font-size="12" fill="#1f2328" font-weight="500" text-anchor="end">92</text>
 <text x="408" y="802" font-size="12" fill="#1a7f37" text-anchor="end">+559k</text>
-<text x="456" y="802" font-size="12" fill="#59636e" text-anchor="end">46</text>
+<text x="456" y="802" font-size="12" fill="#59636e" text-anchor="end">48</text>
 <text x="490" y="802" font-size="12" fill="#59636e" text-anchor="end">45</text>
 <text x="564" y="802" font-size="12" fill="#59636e" text-anchor="end">1 Nov</text>
 <line x1="44" y1="813.5" x2="564" y2="813.5" stroke="#e6eaef"/>
