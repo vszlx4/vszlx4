@@ -4,6 +4,7 @@ Turns raw data into the numbers the dashboard shows. Pure functions, no drawing.
 Inputs (a data directory written by fetch.py; never committed, because it holds private repository names):
   commits.json                  one record per authored commit: repo, date (ISO, with offset), subject, files [path, +, -]
   repos.json                    repositories the token can see (REST)
+  languages.json                bytes of code per language, per repository with authored commits (GitHub's language stats)
   runs_<repo>.json, iss_<repo>.json, tests.json   Actions runs, issues/PRs and test-file counts per owned public repository
 """
 import json
@@ -14,11 +15,6 @@ from datetime import datetime, timedelta, timezone
 
 EXCLUDE = re.compile(r'(^|/)(package-lock\.json|yarn\.lock|pnpm-lock\.yaml|poetry\.lock|Cargo\.lock|uv\.lock)$'
                      r'|(^|/)meta/\d+_snapshot\.json$|\.min\.(js|css)$|\.map$')
-LANG_BY_EXT = {
-    'py': 'Python', 'svelte': 'Svelte', 'ts': 'TypeScript', 'tsx': 'TypeScript', 'js': 'JavaScript', 'mjs': 'JavaScript',
-    'cjs': 'JavaScript', 'jsx': 'JavaScript', 'html': 'HTML', 'css': 'CSS', 'scss': 'CSS', 'astro': 'Astro', 'sh': 'Shell',
-    'sql': 'SQL', 'c': 'C', 'h': 'C', 'cs': 'C#', 'go': 'Go', 'rs': 'Rust', 'java': 'Java', 'kt': 'Kotlin', 'lua': 'Lua',
-}
 SIZE_BUCKETS = [('1-10', 1, 10), ('11-50', 11, 50), ('51-200', 51, 200), ('201-1k', 201, 1000), ('1k-5k', 1001, 5000), ('5k+', 5001, None)]
 AUTOMATED_RUN = ('Graph Update', 'pip in', 'npm in', 'github_actions in', 'Dependabot')
 TYPES = ['Feature', 'Fix', 'Refactor', 'Test', 'Docs', 'Maintenance']
@@ -60,10 +56,10 @@ def _time(s):
 
 
 def _lines(c):
-    if not c['files'] and 'additions' in c:  # file list not fetched yet: totals only, no language split
-        return c['additions'], c['deletions'], []
+    if not c['files'] and 'additions' in c:  # file list not fetched yet: totals only
+        return c['additions'], c['deletions']
     files = [f for f in c['files'] if not EXCLUDE.search(f[0])]
-    return sum(f[1] for f in files), sum(f[2] for f in files), files
+    return sum(f[1] for f in files), sum(f[2] for f in files)
 
 
 def _months(first, last):
@@ -80,7 +76,7 @@ def build(data_dir, now=None):
     commits = _load(os.path.join(data_dir, 'commits.json'), [])
     for c in commits:
         c['dt'] = datetime.fromisoformat(c['date'])
-        c['add'], c['del'], c['code'] = _lines(c)
+        c['add'], c['del'] = _lines(c)
     commits.sort(key=lambda c: c['dt'])
     # "Today" and every date shown follow the usual offset of the commits, not whichever one happened to be last.
     offsets = Counter(c['dt'].utcoffset() for c in commits)
@@ -102,21 +98,21 @@ def build(data_dir, now=None):
     t['changed'] = t['added'] + t['removed']
     m['sizes'] = [(label, sum(1 for s in sizes if s >= lo and (hi is None or s <= hi))) for label, lo, hi in SIZE_BUCKETS]
 
-    # ---- months: commits, commit types and lines added per language
-    per = defaultdict(lambda: dict(commits=0, langs=Counter(), types=Counter()))
+    # ---- months: commits and commit types
+    per = defaultdict(lambda: dict(commits=0, types=Counter()))
     for c in commits:
         p = per[(c['dt'].year, c['dt'].month)]
         p['commits'] += 1
         p['types'][commit_type(c['subject'])] += 1
-        for f, a, _ in c['code']:
-            ext = f.rsplit('.', 1)[-1].lower() if '.' in f.rsplit('/', 1)[-1] else ''
-            if ext in LANG_BY_EXT:
-                p['langs'][LANG_BY_EXT[ext]] += a
     m['periods'] = [dict(key=k, label=datetime(k[0], k[1], 1).strftime('%b'), year=k[0], **per[k]) for k in _months(first, now)]
     m['types'] = sum((p['types'] for p in m['periods']), Counter())
-    lang_total = sum((p['langs'] for p in m['periods']), Counter())
+
+    # ---- languages: the code in those repositories today, in bytes
+    by_repo = _load(os.path.join(data_dir, 'languages.json'), {}) or {}
+    lang_total = sum((Counter(v) for v in by_repo.values()), Counter())
     top = [l for l, _ in lang_total.most_common(5)]
-    m['languages'] = dict(order=top + (['Other'] if len(lang_total) > len(top) else []), totals=lang_total, top=top)
+    m['languages'] = dict(order=top + (['Other'] if len(lang_total) > len(top) else []), totals=lang_total, top=top,
+                          repos=sum(1 for v in by_repo.values() if v))
 
     # ---- weekly series (Monday-start weeks) from the first commit's week to this week
     wk0 = (first - timedelta(days=first.weekday())).date()

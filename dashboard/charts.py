@@ -25,6 +25,13 @@ def fmt_compact(v):
     return ('−' if v < 0 else '') + s
 
 
+def fmt_bytes(v):
+    for unit, size in (('GB', 1e9), ('MB', 1e6), ('KB', 1e3)):
+        if v >= size:
+            return ('{:.0f} {}' if v >= 100 * size else '{:.1f} {}').format(v / size, unit).replace('.0 ', ' ')
+    return '{} B'.format(int(v))
+
+
 def fmt_pct(v, digits=0):
     return '{:.{}f}%'.format(v * 100, digits)
 
