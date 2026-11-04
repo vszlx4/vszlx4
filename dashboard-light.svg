@@ -177,12 +177,12 @@
 <text x="620" y="424" font-size="14" fill="#1f2328" font-weight="600">Continuous Integration</text>
 <text x="620" y="442" font-size="11.5" fill="#6e7781">Workflow runs in public repositories</text>
 <path d="M 637.72 534.28 A 40 40 0 1 1 694.28 534.28" fill="none" stroke="#e6eaef" stroke-width="8" stroke-linecap="round"/>
-<path d="M 637.72 534.28 A 40 40 0 1 1 697.24 530.98" fill="none" stroke="#1a7f37" stroke-width="8" stroke-linecap="round"/>
-<text x="666" y="508" font-size="15" fill="#1f2328" font-weight="600" text-anchor="middle">97.6%</text>
+<path d="M 637.72 534.28 A 40 40 0 1 1 697.23 530.99" fill="none" stroke="#1a7f37" stroke-width="8" stroke-linecap="round"/>
+<text x="666" y="508" font-size="15" fill="#1f2328" font-weight="600" text-anchor="middle">97.7%</text>
 <text x="666" y="523" font-size="9.5" fill="#6e7781" text-anchor="middle">success rate</text>
 <circle cx="732" cy="474" r="3.5" fill="#1a7f37"/>
 <text x="742" y="478" font-size="12" fill="#59636e">Succeeded</text>
-<text x="852" y="478" font-size="12" fill="#1f2328" font-weight="500" text-anchor="end">498</text>
+<text x="852" y="478" font-size="12" fill="#1f2328" font-weight="500" text-anchor="end">499</text>
 <circle cx="732" cy="496" r="3.5" fill="#d1242f"/>
 <text x="742" y="500" font-size="12" fill="#59636e">Failed</text>
 <text x="852" y="500" font-size="12" fill="#1f2328" font-weight="500" text-anchor="end">12</text>
@@ -194,12 +194,12 @@
 <line x1="620" y1="572.5" x2="852" y2="572.5" stroke="#d1d9e0"/>
 <text x="620" y="598" font-size="12" fill="#6e7781">Latest run</text>
 <circle cx="706" cy="594" r="3.5" fill="#1a7f37"/>
-<text x="718" y="598" font-size="12" fill="#1f2328">Succeeded, 3 Nov</text>
+<text x="718" y="598" font-size="12" fill="#1f2328">Succeeded, 4 Nov</text>
 <text x="620" y="622" font-size="12" fill="#6e7781">Period</text>
 <text x="718" y="622" font-size="12" fill="#1f2328">Dec 2025 - Nov 2026</text>
 <text x="620" y="646" font-size="12" fill="#6e7781">Updated</text>
 <circle cx="706" cy="642" r="3.5" fill="#1a7f37"/>
-<text x="718" y="646" font-size="12" fill="#1f2328" class="stamp">4 Nov 2026, 12:07</text>
+<text x="718" y="646" font-size="12" fill="#1f2328" class="stamp">4 Nov 2026, 13:08</text>
 <rect x="24.5" y="688.5" width="559" height="287" rx="16" fill="#f6f8fa" stroke="#d1d9e0"/>
 <text x="44" y="720" font-size="14" fill="#1f2328" font-weight="600">Repositories</text>
 <text x="44" y="738" font-size="11.5" fill="#6e7781">Most recent commits first</text>
@@ -219,7 +219,7 @@
 <text x="244" y="802" font-size="12" fill="#59636e">Svelte</text>
 <text x="346" y="802" font-size="12" fill="#1f2328" font-weight="500" text-anchor="end">109</text>
 <text x="408" y="802" font-size="12" fill="#1a7f37" text-anchor="end">+561k</text>
-<text x="456" y="802" font-size="12" fill="#59636e" text-anchor="end">73</text>
+<text x="456" y="802" font-size="12" fill="#59636e" text-anchor="end">74</text>
 <text x="490" y="802" font-size="12" fill="#59636e" text-anchor="end">50</text>
 <text x="564" y="802" font-size="12" fill="#59636e" text-anchor="end">3 Nov</text>
 <line x1="44" y1="813.5" x2="564" y2="813.5" stroke="#e6eaef"/>
