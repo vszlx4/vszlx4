@@ -59,12 +59,12 @@
 <rect x="600.5" y="128.5" width="271" height="247" rx="16" fill="#f6f8fa" stroke="#d1d9e0"/>
 <text x="620" y="160" font-size="14" fill="#1f2328" font-weight="600">Language Distribution</text>
 <text x="620" y="178" font-size="11.5" fill="#6e7781">Current code: 4.9 MB in 11 repositories</text>
-<path d="M 673.00 226.01 A 50 50 0 0 1 712.87 304.81" fill="none" stroke="#9a6700" stroke-width="16"/>
-<path d="M 711.68 306.42 A 50 50 0 0 1 631.29 305.03" fill="none" stroke="#0969da" stroke-width="16"/>
-<path d="M 630.16 303.38 A 50 50 0 0 1 635.01 242.36" fill="none" stroke="#f0781f" stroke-width="16"/>
-<path d="M 636.38 240.91 A 50 50 0 0 1 650.13 231.04" fill="none" stroke="#a0114a" stroke-width="16"/>
-<path d="M 651.95 230.20 A 50 50 0 0 1 660.42 227.36" fill="none" stroke="#c49cf7" stroke-width="16"/>
-<path d="M 662.38 226.93 A 50 50 0 0 1 671.00 226.01" fill="none" stroke="#8c959f" stroke-width="16"/>
+<path d="M 673.00 226.01 A 50 50 0 0 1 713.29 304.19" fill="none" stroke="#9a6700" stroke-width="16"/>
+<path d="M 712.13 305.82 A 50 50 0 0 1 630.94 304.54" fill="none" stroke="#0969da" stroke-width="16"/>
+<path d="M 629.83 302.87 A 50 50 0 0 1 635.10 242.26" fill="none" stroke="#f0781f" stroke-width="16"/>
+<path d="M 636.48 240.81 A 50 50 0 0 1 650.14 231.03" fill="none" stroke="#a0114a" stroke-width="16"/>
+<path d="M 651.96 230.19 A 50 50 0 0 1 660.49 227.34" fill="none" stroke="#c49cf7" stroke-width="16"/>
+<path d="M 662.45 226.92 A 50 50 0 0 1 671.00 226.01" fill="none" stroke="#8c959f" stroke-width="16"/>
 <text x="672" y="272" font-size="11.5" fill="#59636e" text-anchor="middle">Python</text>
 <text x="672" y="292" font-size="20" fill="#1f2328" font-weight="600" text-anchor="middle">35%</text>
 <circle cx="746" cy="216" r="4" fill="#9a6700"/>
@@ -72,16 +72,16 @@
 <text x="852" y="220" font-size="12" fill="#59636e" text-anchor="end">35%</text>
 <circle cx="746" cy="238" r="4" fill="#0969da"/>
 <text x="756" y="242" font-size="12" fill="#1f2328">TypeScript</text>
-<text x="852" y="242" font-size="12" fill="#59636e" text-anchor="end">30%</text>
+<text x="852" y="242" font-size="12" fill="#59636e" text-anchor="end">31%</text>
 <circle cx="746" cy="260" r="4" fill="#f0781f"/>
 <text x="756" y="264" font-size="12" fill="#1f2328">Svelte</text>
-<text x="852" y="264" font-size="12" fill="#59636e" text-anchor="end">22%</text>
+<text x="852" y="264" font-size="12" fill="#59636e" text-anchor="end">21%</text>
 <circle cx="746" cy="282" r="4" fill="#a0114a"/>
 <text x="756" y="286" font-size="12" fill="#1f2328">HTML</text>
 <text x="852" y="286" font-size="12" fill="#59636e" text-anchor="end">6%</text>
 <circle cx="746" cy="304" r="4" fill="#c49cf7"/>
 <text x="756" y="308" font-size="12" fill="#1f2328">CSS</text>
-<text x="852" y="308" font-size="12" fill="#59636e" text-anchor="end">3%</text>
+<text x="852" y="308" font-size="12" fill="#59636e" text-anchor="end">4%</text>
 <circle cx="746" cy="326" r="4" fill="#8c959f"/>
 <text x="756" y="330" font-size="12" fill="#1f2328">Other</text>
 <text x="852" y="330" font-size="12" fill="#59636e" text-anchor="end">3%</text>
@@ -201,7 +201,7 @@
 <text x="718" y="622" font-size="12" fill="#1f2328">Dec 2025 - Nov 2026</text>
 <text x="620" y="646" font-size="12" fill="#6e7781">Updated</text>
 <circle cx="706" cy="642" r="3.5" fill="#1a7f37"/>
-<text x="718" y="646" font-size="12" fill="#1f2328" class="stamp">27 Nov 2026, 12:07</text>
+<text x="718" y="646" font-size="12" fill="#1f2328" class="stamp">27 Nov 2026, 13:07</text>
 <rect x="24.5" y="688.5" width="559" height="287" rx="16" fill="#f6f8fa" stroke="#d1d9e0"/>
 <text x="44" y="720" font-size="14" fill="#1f2328" font-weight="600">Repositories</text>
 <text x="44" y="738" font-size="11.5" fill="#6e7781">Most recent commits first</text>
